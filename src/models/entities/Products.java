@@ -14,7 +14,6 @@ public class Products {
         this.description = description;
         this.price = price;
         this.category = category;
-
     }
 
     public String getName() {

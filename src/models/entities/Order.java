@@ -5,21 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<ShoppingCarItems> products = new ArrayList<>();
+    private List<ShoppingCartItems> products = new ArrayList<>();
     private Costumer costumer;
     private LocalDate orderDate;
     private Double orderTotal;
     public Order(){
     }
 
-    public Order(List<ShoppingCarItems> products, Costumer costumer, LocalDate orderDate, Double orderTotal) {
+    public Order(List<ShoppingCartItems> products, Costumer costumer, LocalDate orderDate, Double orderTotal) {
         this.products = products;
         this.costumer = costumer;
         this.orderDate = orderDate;
         this.orderTotal = orderTotal;
     }
 
-    public List<ShoppingCarItems> getProducts() {
+    public List<ShoppingCartItems> getProducts() {
         return products;
     }
 

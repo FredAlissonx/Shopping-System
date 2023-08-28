@@ -4,16 +4,16 @@ public class Costumer {
     private String name;
     private String email;
     private String shippingAddress;
-    private ShoppingCar shoppingCar;
+    private ShoppingCart shoppingCart;
 
     public Costumer(){
     }
 
-    public Costumer(String name, String email, String shippingAddress, ShoppingCar shoppingCar) {
+    public Costumer(String name, String email, String shippingAddress, ShoppingCart shoppingCart) {
         this.name = name;
         this.email = email;
         this.shippingAddress = shippingAddress;
-        this.shoppingCar = shoppingCar;
+        this.shoppingCart = shoppingCart;
     }
 
     public String getName() {
@@ -24,18 +24,18 @@ public class Costumer {
         return email;
     }
 
-    public ShoppingCar getShoppingCar() {
-        return shoppingCar;
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
     public String getShippingAddress() {
         return shippingAddress;
     }
-    public void addToShoppingCar(Products product, int quantity){
-        shoppingCar.addItem(product, quantity);
+    public void addToShoppingCart(Products product, int quantity){
+        shoppingCart.addItem(product, quantity);
     }
-    public void removeFromShoppingCar(Products product, int quantity){
-        shoppingCar.removeItem(product, quantity);
+    public void removeFromShoppingCart(Products product, int quantity){
+        shoppingCart.removeItem(product, quantity);
     }
     public void checkout(){
 

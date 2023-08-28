@@ -1,10 +1,10 @@
 package models.entities;
 
-public class ShoppingCarItems {
+public class ShoppingCartItems {
     private Products product;
     private int quantity;
 
-    public ShoppingCarItems(Products product, int quantity) {
+    public ShoppingCartItems(Products product, int quantity) {
         this.product = product;
         this.quantity = quantity;
     }
@@ -18,5 +18,8 @@ public class ShoppingCarItems {
     }
     public void incrementQuantity(int amount){
         quantity += amount;
+    }
+    public void decrementQuantity(int amount){
+        quantity -= amount;
     }
 }

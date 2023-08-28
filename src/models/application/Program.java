@@ -2,8 +2,8 @@ package models.application;
 
 import models.entities.Costumer;
 import models.entities.Order;
-import models.entities.ShoppingCar;
-import models.entities.ShoppingCarItems;
+import models.entities.ShoppingCart;
+import models.entities.ShoppingCartItems;
 import models.entities.categories.Books;
 import models.entities.categories.Clothing;
 import models.entities.categories.Eletronics;
@@ -34,7 +34,7 @@ public class Program {
         System.out.print("Shipping address (CEP/ZIP code): ");
         String address = sc.nextLine();
 
-        Costumer costumer = new Costumer(name, email, address, new ShoppingCar());
+        Costumer costumer = new Costumer(name, email, address, new ShoppingCart());
 
         System.out.println("Welcome to the Online Shopping System!");
 
@@ -120,17 +120,17 @@ public class Program {
 
                             if(optionAddCart == 1){
                                 // add item using composition
-                                costumer.addToShoppingCar(eletronics.getEletronics().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
                             else if(optionAddCart == 2){
-                                costumer.addToShoppingCar(eletronics.getEletronics().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
                             else if(optionAddCart == 3){
-                                costumer.addToShoppingCar(eletronics.getEletronics().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
@@ -152,18 +152,18 @@ public class Program {
                             int quantity = sc.nextInt();
 
                             if(optionAddCart == 1){
-                                costumer.addToShoppingCar(clothing.getClothings().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
 
                                 System.out.println();
                             }
                             else if(optionAddCart == 2){
-                                costumer.addToShoppingCar(clothing.getClothings().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
                             else if(optionAddCart == 3){
-                                costumer.addToShoppingCar(clothing.getClothings().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
@@ -185,17 +185,17 @@ public class Program {
                             int quantity = sc.nextInt();
 
                             if(optionAddCart == 1){
-                                costumer.addToShoppingCar(book.getBooks().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
                             else if(optionAddCart == 2){
-                                costumer.addToShoppingCar(book.getBooks().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
                             else if(optionAddCart == 3){
-                                costumer.addToShoppingCar(book.getBooks().get(optionAddCart - 1), quantity);
+                                costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
                                 System.out.println("Successfully added!");
                                 System.out.println();
                             }
@@ -203,6 +203,8 @@ public class Program {
                                 System.out.println();
                                 throw new DomainException("Invalid option!");
                             }
+                        }else{
+                            throw new DomainException("Invalid option!");
                         }
                     }catch (DomainException e){
                         System.out.println(e.getMessage());
@@ -210,7 +212,7 @@ public class Program {
                 }
                 // View cart
                 case 3 -> {
-                    if (costumer.getShoppingCar().getItems().isEmpty()){
+                    if (costumer.getShoppingCart().getItems().isEmpty()){
                         System.out.println();
                         System.out.println("Your cart is empty!");
                         break;
@@ -220,22 +222,43 @@ public class Program {
                     System.out.println("----- View Cart -----");
                     System.out.println("Your shopping cart:");
                     System.out.println();
-                    for (int i = 0; i < costumer.getShoppingCar().getItems().size(); i++) {
-                        ShoppingCarItems cartItem = costumer.getShoppingCar().getItems().get(i);
+                    for (int i = 0; i < costumer.getShoppingCart().getItems().size(); i++) {
+
+                        ShoppingCartItems cartItem = costumer.getShoppingCart().getItems().get(i);
                         int quantity = cartItem.getQuantity();
                         double itemTotalCost = quantity * cartItem.getProduct().getPrice();
+                        
                         System.out.println((i + 1) + ". " + cartItem.getProduct().getName() + " (Qty: " + quantity + ") - $" + String.format("%.2f", itemTotalCost));
                         totalItems += quantity;
+
                     }
                     System.out.println("Total Items: " + totalItems);
-                    System.out.println("Total Cost: $" + String.format("%.2f", costumer.getShoppingCar().totalCost()));
+                    System.out.println("Total Cost: $" + String.format("%.2f", costumer.getShoppingCart().totalCost()));
 
                 }
                 case 4 -> {
-                    System.out.println("Remove from cart");
+
+                    System.out.println();
+                    System.out.println("----- Removing from cart -----");
+                    System.out.println();
+
+                    for (int i = 0; i < costumer.getShoppingCart().getItems().size(); i++){
+                        System.out.println((i + 1) + ". " + costumer.getShoppingCart().getItems().get(i).getProduct().getName() + " (Qty: " + costumer.getShoppingCart().getItems().get(i).getQuantity() + ")");
+                    }
+
+                    System.out.print("Item that you want to remove: ");
+                    int itemToRemoveFromShoppingCart = sc.nextInt();
+
+                    System.out.print("Quantity to remove: ");
+                    int itemQuantityToRemoveFromShoppingCart = sc.nextInt();
+
+
+                    costumer.removeFromShoppingCart(costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).getProduct(), itemQuantityToRemoveFromShoppingCart);
+                    costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).decrementQuantity(itemQuantityToRemoveFromShoppingCart);
+
                 }
                 case 5 -> {
-                    Order order = new Order(costumer.getShoppingCar().getItems(), costumer, LocalDate.now(), costumer.getShoppingCar().totalCost());
+//                    Order order = new Order(costumer.getShoppingCart().getItems(), costumer, LocalDate.now(), costumer.getShoppingCart().totalCost());
                 }
             }
         }

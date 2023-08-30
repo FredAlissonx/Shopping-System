@@ -238,6 +238,12 @@ public class Program {
                 }
                 case 4 -> {
 
+                    if(costumer.getShoppingCart().getItems().isEmpty()){
+                        System.out.println();
+                        System.out.println("Your cart is empty!");
+                        break;
+                    }
+
                     System.out.println();
                     System.out.println("----- Removing from cart -----");
                     System.out.println();
@@ -246,15 +252,24 @@ public class Program {
                         System.out.println((i + 1) + ". " + costumer.getShoppingCart().getItems().get(i).getProduct().getName() + " (Qty: " + costumer.getShoppingCart().getItems().get(i).getQuantity() + ")");
                     }
 
-                    System.out.print("Item that you want to remove: ");
-                    int itemToRemoveFromShoppingCart = sc.nextInt();
+                    boolean isValid = false;
+                    try{
+                        do {
+                            System.out.print("Item that you want to remove: ");
+                            int itemToRemoveFromShoppingCart = sc.nextInt();
 
-                    System.out.print("Quantity to remove: ");
-                    int itemQuantityToRemoveFromShoppingCart = sc.nextInt();
+                            System.out.print("Quantity to remove: ");
+                            int itemQuantityToRemoveFromShoppingCart = sc.nextInt();
 
-
-                    costumer.removeFromShoppingCart(costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).getProduct(), itemQuantityToRemoveFromShoppingCart);
-                    costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).decrementQuantity(itemQuantityToRemoveFromShoppingCart);
+                            if(itemToRemoveFromShoppingCart < 0 || itemToRemoveFromShoppingCart > costumer.getShoppingCart().getItems().size() || itemQuantityToRemoveFromShoppingCart > costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).getQuantity()){
+                                throw new DomainException("Invalid option!");
+                            }else{
+                                isValid = true;
+                            }
+                        }while (isValid);
+                    }catch (DomainException e){
+                        System.out.println(e.getMessage());
+                    }
 
                 }
                 case 5 -> {

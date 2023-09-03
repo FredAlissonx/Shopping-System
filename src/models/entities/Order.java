@@ -1,5 +1,7 @@
 package models.entities;
 
+import models.exceptions.DomainException;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,5 +35,19 @@ public class Order {
 
     public Double getOrderTotal() {
         return orderTotal;
+    }
+    public boolean paymentValidate(int chose){
+
+        System.out.println("1. Credit Card");
+        System.out.println("2. PayPal");
+        System.out.println("3. Pix");
+        System.out.println("4. Bitcoin");
+
+        System.out.println("Method: ");
+
+            if (chose <= 0 || chose > 4){
+                return false;
+            }
+            return true;
     }
 }

@@ -29,8 +29,16 @@ public class ShoppingCart {
         items.add(new ShoppingCartItems(products, quantity));
     }
     public void removeItem(Products products, int quantity){
-        ShoppingCartItems itemToRemove = new ShoppingCartItems(products, quantity);
-        items.remove(itemToRemove);
+        for (ShoppingCartItems carItem : items){
+            if(carItem.getProduct().getName().equals(products.getName())){
+                carItem.decrementQuantity(quantity);
+                return;
+            }
+        }
+        items.remove(new ShoppingCartItems(products, quantity));
+    }
+    public void removeEntireProduct(ShoppingCartItems shoppingCartItem){
+        getItems().remove(shoppingCartItem);
     }
     public double totalCost(){
         double total = 0;

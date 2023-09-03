@@ -35,9 +35,12 @@ public class Costumer {
         shoppingCart.addItem(product, quantity);
     }
     public void removeFromShoppingCart(Products product, int quantity){
-        shoppingCart.removeItem(product, quantity);
-    }
-    public void checkout(){
-
+        for (ShoppingCartItems item : shoppingCart.getItems()){
+            if (item.getQuantity() > 0){
+                item.decrementQuantity(quantity);
+            }else{
+                shoppingCart.removeItem(product, item.getQuantity());
+            }
+        }
     }
 }

@@ -1,19 +1,17 @@
 package models.application;
 
-import models.entities.Costumer;
-import models.entities.Order;
-import models.entities.ShoppingCart;
-import models.entities.ShoppingCartItems;
+import models.entities.*;
 import models.entities.categories.Books;
 import models.entities.categories.Clothing;
 import models.entities.categories.Eletronics;
 import models.exceptions.DomainException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class Program {
+public class Process {
     public static void main(String[] args) {
 
         Locale.setDefault(Locale.US);
@@ -23,7 +21,7 @@ public class Program {
         Clothing clothing = new Clothing();
         Eletronics eletronics = new Eletronics();
 
-        System.out.println("To create a personalized cart for you, we need some information:");
+        System.out.println("To create a personalized cart for you, we need you sign up:");
 
         System.out.print("Name: ");
         String name = sc.nextLine();
@@ -35,7 +33,7 @@ public class Program {
         String address = sc.nextLine();
 
         Costumer costumer = new Costumer(name, email, address, new ShoppingCart());
-
+        List<ShoppingCartItems> costumerItems = costumer.getShoppingCart().getItems();
         System.out.println("Welcome to the Online Shopping System!");
 
 
@@ -238,6 +236,12 @@ public class Program {
                 }
                 case 4 -> {
 
+                    if(costumer.getShoppingCart().getItems().isEmpty()){
+                        System.out.println();
+                        System.out.println("Your cart is empty!");
+                        break;
+                    }
+
                     System.out.println();
                     System.out.println("----- Removing from cart -----");
                     System.out.println();
@@ -245,21 +249,65 @@ public class Program {
                     for (int i = 0; i < costumer.getShoppingCart().getItems().size(); i++){
                         System.out.println((i + 1) + ". " + costumer.getShoppingCart().getItems().get(i).getProduct().getName() + " (Qty: " + costumer.getShoppingCart().getItems().get(i).getQuantity() + ")");
                     }
+                    try{
 
-                    System.out.print("Item that you want to remove: ");
-                    int itemToRemoveFromShoppingCart = sc.nextInt();
+                        System.out.print("Item to remove: ");
+                        int itemToRemoveByIndex = sc.nextInt();
 
-                    System.out.print("Quantity to remove: ");
-                    int itemQuantityToRemoveFromShoppingCart = sc.nextInt();
+                        System.out.print("Quantity to remove: ");
+                        int quantityToRemove = sc.nextInt();
 
+                        if (itemToRemoveByIndex <= 0 || itemToRemoveByIndex > costumer.getShoppingCart().getItems().size() || quantityToRemove < 0 || quantityToRemove > costumer.getShoppingCart().getItems().get(itemToRemoveByIndex - 1).getQuantity()){
+                            throw new DomainException("Invalid Option!");
+                        }
 
-                    costumer.removeFromShoppingCart(costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).getProduct(), itemQuantityToRemoveFromShoppingCart);
-                    costumer.getShoppingCart().getItems().get(itemToRemoveFromShoppingCart).decrementQuantity(itemQuantityToRemoveFromShoppingCart);
+                        ShoppingCartItems itemToRemove = costumer.getShoppingCart().getItems().get(itemToRemoveByIndex - 1);
+
+                        itemToRemove.decrementQuantity(quantityToRemove);
+
+                        if (itemToRemove.getQuantity() == 0){
+                            costumer.getShoppingCart().removeEntireProduct(itemToRemove);
+                        }
+                    }catch (DomainException e){
+                        System.out.println(e.getMessage());
+                    }
 
                 }
                 case 5 -> {
-//                    Order order = new Order(costumer.getShoppingCart().getItems(), costumer, LocalDate.now(), costumer.getShoppingCart().totalCost());
+                    Order order = new Order(costumer.getShoppingCart().getItems(), costumer, LocalDate.now(), costumer.getShoppingCart().totalCost());
+                    List<ShoppingCartItems> orderCostumerItems = order.getCostumer().getShoppingCart().getItems();
+
+                    System.out.println("----- Checkout -----");
+                    System.out.println();
+                    System.out.println("Your order summary:");
+                    for (int i = 0; i < orderCostumerItems.size(); i++){
+                        System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + orderCostumerItems.get(i).getQuantity() + ")" + " - $" + String.format("%.2f", orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity()));
+                    }
+                    System.out.println("Total Different Items: " + orderCostumerItems.size());
+                    System.out.println("Total Cost: $" + String.format("%.2f", costumer.getShoppingCart().totalCost()));
+
+                    System.out.println("Shipping address:");
+                    System.out.println(order.getCostumer().getName());
+                    System.out.println(order.getCostumer().getEmail());
+                    System.out.println(order.getCostumer().getShippingAddress());
+
+                    System.out.println("Select Payment Method:");
+                    int choosePaymentMethod = sc.nextInt();
+                    if (order.paymentValidate(choosePaymentMethod)){
+                        System.out.println("Payment Successful!");
+                        System.out.println();
+                        System.out.println("Your order has been placed. Thank you for shopping with us!");
+                    }else{
+                        System.out.println("Invalid payment method");
+                        order.paymentValidate(sc.nextInt());
+                    }
                 }
+                default -> System.out.println("Please a valid option!");
+            }
+            if (choice == 6){
+                System.out.println();
+                System.out.println("Thanks for using our system!");
+                break;
             }
         }
     }

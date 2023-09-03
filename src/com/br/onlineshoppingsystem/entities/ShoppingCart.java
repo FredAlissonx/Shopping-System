@@ -1,4 +1,4 @@
-package models.entities;
+package com.br.onlineshoppingsystem.entities;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package models.exceptions;
+package com.br.onlineshoppingsystem.exceptions;
 
 import java.io.Serial;
 

@@ -1,13 +1,13 @@
-package models.entities.categories;
+package com.br.onlineshoppingsystem.categories;
 
-import models.entities.Category;
-import models.entities.Products;
+import com.br.onlineshoppingsystem.entities.Category;
+import com.br.onlineshoppingsystem.entities.Products;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Eletronics extends Products{
+public class Eletronics extends Products {
     private List<Products> eletronics = new ArrayList<>(Arrays.asList(
             new Products("Laptop", "High-performance laptop for work and gaming.", 999.99, Category.ELETRONICS),
             new Products("Smartphone", "The latest smartphone with advanced features.", 699.99, Category.ELETRONICS),

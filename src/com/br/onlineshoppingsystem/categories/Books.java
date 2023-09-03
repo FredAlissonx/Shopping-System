@@ -1,7 +1,7 @@
-package models.entities.categories;
+package com.br.onlineshoppingsystem.categories;
 
-import models.entities.Category;
-import models.entities.Products;
+import com.br.onlineshoppingsystem.entities.Category;
+import com.br.onlineshoppingsystem.entities.Products;
 
 import java.util.ArrayList;
 import java.util.Arrays;

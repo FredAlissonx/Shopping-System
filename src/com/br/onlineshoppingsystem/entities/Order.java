@@ -1,6 +1,4 @@
-package models.entities;
-
-import models.exceptions.DomainException;
+package com.br.onlineshoppingsystem.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,19 +31,8 @@ public class Order {
         return orderDate;
     }
 
-    public Double getOrderTotal() {
-        return orderTotal;
-    }
-    public boolean paymentValidate(int chose){
-
-        System.out.println("1. Credit Card");
-        System.out.println("2. PayPal");
-        System.out.println("3. Pix");
-        System.out.println("4. Bitcoin");
-
-        System.out.println("Method: ");
-
-            if (chose <= 0 || chose > 4){
+    public boolean paymentValidate(int choose){
+            if (choose <= 0 || choose > 4){
                 return false;
             }
             return true;

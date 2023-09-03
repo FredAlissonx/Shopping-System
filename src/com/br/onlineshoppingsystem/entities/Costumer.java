@@ -1,15 +1,15 @@
-package models.entities;
+package com.br.onlineshoppingsystem.entities;
 
 public class Costumer {
     private String name;
     private String email;
-    private String shippingAddress;
+    private Integer shippingAddress;
     private ShoppingCart shoppingCart;
 
     public Costumer(){
     }
 
-    public Costumer(String name, String email, String shippingAddress, ShoppingCart shoppingCart) {
+    public Costumer(String name, String email, Integer shippingAddress, ShoppingCart shoppingCart) {
         this.name = name;
         this.email = email;
         this.shippingAddress = shippingAddress;
@@ -28,19 +28,10 @@ public class Costumer {
         return shoppingCart;
     }
 
-    public String getShippingAddress() {
+    public int getShippingAddress() {
         return shippingAddress;
     }
     public void addToShoppingCart(Products product, int quantity){
         shoppingCart.addItem(product, quantity);
-    }
-    public void removeFromShoppingCart(Products product, int quantity){
-        for (ShoppingCartItems item : shoppingCart.getItems()){
-            if (item.getQuantity() > 0){
-                item.decrementQuantity(quantity);
-            }else{
-                shoppingCart.removeItem(product, item.getQuantity());
-            }
-        }
     }
 }

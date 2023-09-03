@@ -1,4 +1,4 @@
-package models.entities;
+package com.br.onlineshoppingsystem.entities;
 
 public class Products {
     private String name;

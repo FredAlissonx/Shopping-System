@@ -1,13 +1,13 @@
-package models.entities.categories;
+package com.br.onlineshoppingsystem.categories;
 
-import models.entities.Category;
-import models.entities.Products;
+import com.br.onlineshoppingsystem.entities.Category;
+import com.br.onlineshoppingsystem.entities.Products;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Clothing extends Products{
+public class Clothing extends Products {
     private List<Products> clothings = new ArrayList<>(Arrays.asList(
             new Products("Men's Classic T-Shirt", "A comfortable and versatile men's t-shirt made from soft cotton.", 19.99, Category.CLOTHING),
             new Products("Women's Skinny Jeans", "Stylish and fitted women's jeans with a modern skinny fit.", 39.99, Category.CLOTHING),

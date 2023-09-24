@@ -1,5 +1,7 @@
 package com.br.onlineshoppingsystem.entities;
 
+import com.br.onlineshoppingsystem.domain.Costumer;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,6 @@ public class Order {
     }
 
     public boolean paymentValidate(int choose){
-            if (choose <= 0 || choose > 4){
-                return false;
-            }
-            return true;
+        return choose > 0 && choose <= 4;
     }
 }

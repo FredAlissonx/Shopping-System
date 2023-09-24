@@ -1,15 +1,18 @@
-package com.br.onlineshoppingsystem.entities;
+package com.br.onlineshoppingsystem.domain;
+
+import com.br.onlineshoppingsystem.entities.Products;
+import com.br.onlineshoppingsystem.entities.ShoppingCart;
 
 public class Costumer {
     private String name;
     private String email;
-    private Integer shippingAddress;
+    private Long shippingAddress;
     private ShoppingCart shoppingCart;
 
     public Costumer(){
     }
 
-    public Costumer(String name, String email, Integer shippingAddress, ShoppingCart shoppingCart) {
+    public Costumer(String name, String email, Long shippingAddress, ShoppingCart shoppingCart) {
         this.name = name;
         this.email = email;
         this.shippingAddress = shippingAddress;
@@ -28,7 +31,7 @@ public class Costumer {
         return shoppingCart;
     }
 
-    public int getShippingAddress() {
+    public long getShippingAddress() {
         return shippingAddress;
     }
     public void addToShoppingCart(Products product, int quantity){

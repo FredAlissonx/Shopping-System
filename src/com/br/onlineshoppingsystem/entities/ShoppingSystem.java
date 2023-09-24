@@ -3,16 +3,73 @@ package com.br.onlineshoppingsystem.entities;
 import com.br.onlineshoppingsystem.categories.Books;
 import com.br.onlineshoppingsystem.categories.Clothing;
 import com.br.onlineshoppingsystem.categories.Eletronics;
+import com.br.onlineshoppingsystem.domain.Costumer;
 import com.br.onlineshoppingsystem.exceptions.DomainException;
-
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
-public class Process {
-
-
+public class ShoppingSystem implements IProcess {
     Scanner sc = new Scanner(System.in);
+
+    @Override
+    public void run() {
+
+        System.out.println("To create a personalized cart for you, we need you sign up:");
+
+        String name, email, addressInput;
+        long address;
+
+        while (true) {
+            System.out.print("Name: ");
+            name = sc.nextLine();
+
+            System.out.print("Email: ");
+            email = sc.nextLine();  // Change to nextLine() to read the whole line
+
+            System.out.print("Shipping address (CEP/ZIP code): ");
+            addressInput = sc.nextLine();  // Change to nextLine() to read the whole line
+
+            if (isEmailAndNameValidPersonalized(name, email)) {
+                try {
+                    address = Long.parseLong(addressInput);  // Try to parse the input as a long
+                    break;  // Break the loop if a valid address is obtained
+                } catch (NumberFormatException e) {
+                    System.out.println("\nInvalid information. Please enter valid values!");
+                }
+            } else {
+                System.out.println("\nInvalid information. Please enter valid values!");
+            }
+        }
+
+
+        System.out.println("\nWelcome to the Online Shopping System!");
+
+        Costumer costumer = new Costumer(name, email, address, new ShoppingCart());
+
+        while (true) {
+
+            menuDisplay();
+
+            MenuOption choiceFromMenuOptions = getMenuChoice();
+
+            sc.nextLine();
+
+            switch (choiceFromMenuOptions) {
+                case BROWSE_PRODUCTS -> viewProducts(new Eletronics(), new Books(), new Clothing());
+                case ADD_TO_CART -> addToCart(new Eletronics(), new Books(), new Clothing(), costumer);
+                case VIEW_CART -> viewCart(costumer);
+                case REMOVE_FROM_CART -> removeItemFromCart(new Eletronics(), new Books(), new Clothing(), costumer);
+                case CHECKOUT -> checkout(costumer);
+                case EXIT -> exit();
+                default -> System.out.println("\nInvalid option. Please try again.");
+            }
+        }
+    }
+
+    @Override
     public void viewProducts(Eletronics eletronics, Books book, Clothing clothing) {
 
         System.out.println("\nAvailable Product Categories:");
@@ -20,44 +77,48 @@ public class Process {
         System.out.println("2. Clothing");
         System.out.println("3. Books");
         System.out.print("Please choose a category to view its products: ");
-        int productChoose = sc.nextInt();
+
+        String productChoose = sc.next();
+
+        while (!productChoose.equals("1") && !productChoose.equals("2") && !productChoose.equals("3")){
+
+            System.out.print("A valid value [1], [2] or [3]: ");
+            productChoose = sc.next();
+
+        }
+
         System.out.println();
 
         // Verifying option
-        try {
-            List<Products> selectedProducts = null;
-            String categoryName = "";
+        List<Products> selectedProducts = null;
+        String categoryName = "";
 
-            switch (productChoose) {
-                case 1:
-                    selectedProducts = eletronics.getEletronics();
-                    categoryName = "Electronics";
-                    break;
-                case 2:
-                    selectedProducts = clothing.getClothings();
-                    categoryName = "Clothing";
-                    break;
-                case 3:
-                    selectedProducts = book.getBooks();
-                    categoryName = "Books";
-                    break;
-                default:
-                    throw new DomainException("Invalid option!");
+        switch (productChoose) {
+            case "1" -> {
+                selectedProducts = eletronics.getEletronics();
+                categoryName = "Electronics";
             }
-
-            System.out.println("Here are the products in the " + categoryName + " category:\n");
-
-            for (int i = 0; i < selectedProducts.size(); i++) {
-
-                Products product = selectedProducts.get(i);
-                System.out.println((i + 1) + ". " + product.getName() + " - " + product.getDescription() + " R$" + product.getPrice());
-
+            case "2" -> {
+                selectedProducts = clothing.getClothings();
+                categoryName = "Clothing";
             }
-        } catch (DomainException e) {
-            System.out.println(e.getMessage());
+            case "3" -> {
+                selectedProducts = book.getBooks();
+                categoryName = "Books";
+            }
+            default -> System.out.println("\nPlease a valid option!");
         }
+
+        System.out.println("Here are the products in the " + categoryName + " category:\n");
+
+        for (int i = 0; i < selectedProducts.size(); i++) {
+            Products product = selectedProducts.get(i);
+            System.out.println((i + 1) + ". " + product.getName() + " - " + product.getDescription() + " R$" + product.getPrice());
+        }
+
     }
 
+    @Override
     public void addToCart(Eletronics eletronics, Books book, Clothing clothing, Costumer costumer) {
 
         System.out.println("\nFrom what category:");
@@ -70,8 +131,9 @@ public class Process {
         System.out.println();
 
         try {
+
             if (addOptionSeeProductsfromCategory == 1) {
-                // show the name of options
+
                 for (int i = 0; i < eletronics.getEletronics().size(); i++) {
                     System.out.println((i + 1) + ". " + eletronics.getEletronics().get(i).getName());
                 }
@@ -81,7 +143,9 @@ public class Process {
 
                 System.out.print("Quantity: ");
                 int quantity = sc.nextInt();
-
+                if (quantity <= 0) {
+                    throw new DomainException("\nPlease a valid quantity!");
+                }
 
                 if (optionAddCart == 1) {
                     // add item using composition
@@ -165,6 +229,7 @@ public class Process {
         }
     }
 
+    @Override
     public void viewCart(Costumer costumer) {
         if (costumer.getShoppingCart().getItems().isEmpty()) {
             System.out.println();
@@ -192,6 +257,7 @@ public class Process {
     }
 
 
+    @Override
     public void removeItemFromCart(Eletronics eletronics, Books book, Clothing clothing, Costumer costumer) {
 
         if (costumer.getShoppingCart().getItems().isEmpty()) {
@@ -230,6 +296,8 @@ public class Process {
             System.out.println(e.getMessage());
         }
     }
+
+    @Override
     public void checkout(Costumer costumer) {
         Order order = new Order(costumer.getShoppingCart().getItems(), costumer, LocalDate.now(), costumer.getShoppingCart().totalCost());
 
@@ -270,12 +338,15 @@ public class Process {
             order.paymentValidate(sc.nextInt());
         }
     }
-    public void exit(){
-        System.out.println();
-        System.out.println("Thanks for using our Online Shopping System!");
+
+    @Override
+    public void exit() {
+        System.out.println("\nThanks for using our Online Shopping System!");
+        System.exit(0);
     }
 
-    public void menu() {
+    @Override
+    public void menuDisplay() {
         System.out.println();
         System.out.println("Main menu:");
         System.out.println("1. Browse Products");
@@ -284,7 +355,24 @@ public class Process {
         System.out.println("4. Remove from cart");
         System.out.println("5. Checkout");
         System.out.println("6. Exit");
-        System.out.print("Please choose an option: ");
 
+    }
+
+    public MenuOption getMenuChoice(){
+
+        HashSet<String> options = new HashSet<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+
+        System.out.print("Please choose an option: ");
+        String choice = sc.next();
+
+        // if "choice" in options
+        if(!options.contains(choice)) return MenuOption.EXCEPTIONS;
+
+        return MenuOption.values()[Integer.parseInt(choice) - 1];
+    }
+
+    @Override
+    public boolean isEmailAndNameValidPersonalized(String name, String email) {
+        return !name.isEmpty() && !email.isEmpty();
     }
 }

@@ -5,9 +5,9 @@ import com.br.onlineshoppingsystem.categories.Clothing;
 import com.br.onlineshoppingsystem.categories.Eletronics;
 import com.br.onlineshoppingsystem.domain.Costumer;
 import com.br.onlineshoppingsystem.exceptions.DomainException;
+
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -58,7 +58,7 @@ public class ShoppingSystem implements IProcess {
             sc.nextLine();
 
             switch (choiceFromMenuOptions) {
-                case BROWSE_PRODUCTS -> viewProducts(new Eletronics(), new Books(), new Clothing());
+                case BROWSE_PRODUCTS -> browseProducts(new Eletronics(), new Books(), new Clothing());
                 case ADD_TO_CART -> addToCart(new Eletronics(), new Books(), new Clothing(), costumer);
                 case VIEW_CART -> viewCart(costumer);
                 case REMOVE_FROM_CART -> removeItemFromCart(new Eletronics(), new Books(), new Clothing(), costumer);
@@ -70,7 +70,7 @@ public class ShoppingSystem implements IProcess {
     }
 
     @Override
-    public void viewProducts(Eletronics eletronics, Books book, Clothing clothing) {
+    public void browseProducts(Eletronics eletronics, Books book, Clothing clothing) {
 
         System.out.println("\nAvailable Product Categories:");
         System.out.println("1. Eletronics");
@@ -80,7 +80,7 @@ public class ShoppingSystem implements IProcess {
 
         String productChoose = sc.next();
 
-        while (!productChoose.equals("1") && !productChoose.equals("2") && !productChoose.equals("3")){
+        while (!productChoose.equals("1") && !productChoose.equals("2") && !productChoose.equals("3")) {
 
             System.out.print("A valid value [1], [2] or [3]: ");
             productChoose = sc.next();
@@ -122,111 +122,96 @@ public class ShoppingSystem implements IProcess {
     public void addToCart(Eletronics eletronics, Books book, Clothing clothing, Costumer costumer) {
 
         System.out.println("\nFrom what category:");
-        System.out.println("1. Eletronics");
+        System.out.println("1. Electronics");
         System.out.println("2. Clothing");
         System.out.println("3. Books");
         System.out.print("Your choice: ");
-        int addOptionSeeProductsfromCategory = sc.nextInt();
+        String addOptionProductsfromCategory = sc.next();
 
-        System.out.println();
+        List<Products> productsToSelect;
 
-        try {
 
-            if (addOptionSeeProductsfromCategory == 1) {
+        while (!containsChoice(Arrays.asList("1", "2", "3"), addOptionProductsfromCategory)) {
+            System.out.println("\n1. Electronics");
+            System.out.println("2. Clothing");
+            System.out.println("3. Books");
 
-                for (int i = 0; i < eletronics.getEletronics().size(); i++) {
-                    System.out.println((i + 1) + ". " + eletronics.getEletronics().get(i).getName());
+            System.out.print("Please a valid choice: ");
+            addOptionProductsfromCategory = sc.next();
+            System.out.println();
+        }
+        switch (addOptionProductsfromCategory) {
+            case "1" -> {
+
+                productsToSelect = eletronics.getEletronics();
+
+                for (int i = 0; i < productsToSelect.size(); i++) {
+                    Products product = productsToSelect.get(i);
+                    System.out.println((i + 1) + ". " + product.getName() + " - R$ " + product.getPrice());
                 }
 
-                System.out.print("Your choice to add to cart: ");
-                int optionAddCart = sc.nextInt();
+                defaultFunctionalityAddToCart(Category.ELETRONICS,costumer, eletronics, book, clothing);
+            }
+            case "2" -> {
 
-                System.out.print("Quantity: ");
-                int quantity = sc.nextInt();
-                if (quantity <= 0) {
-                    throw new DomainException("\nPlease a valid quantity!");
+                productsToSelect = clothing.getClothings();
+
+                for (int i = 0; i < productsToSelect.size(); i++) {
+                    Products product = productsToSelect.get(i);
+                    System.out.println((i + 1) + ". " + product.getName() + " - " + product.getPrice());
                 }
 
-                if (optionAddCart == 1) {
-                    // add item using composition
-                    costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else if (optionAddCart == 2) {
-                    costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else if (optionAddCart == 3) {
-                    costumer.addToShoppingCart(eletronics.getEletronics().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else {
-                    System.out.println();
-                    throw new DomainException("Invalid option!");
-                }
-            } else if (addOptionSeeProductsfromCategory == 2) {
+                defaultFunctionalityAddToCart(Category.CLOTHING,costumer, eletronics, book, clothing);
+            }
+            case "3" -> {
 
-                for (int i = 0; i < clothing.getClothings().size(); i++) {
-                    System.out.println((i + 1) + ". " + clothing.getClothings().get(i).getName());
+                productsToSelect = book.getBooks();
+
+                for (int i = 0; i < productsToSelect.size(); i++) {
+                    Products product = productsToSelect.get(i);
+                    System.out.println((i + 1) + ". " + product.getName() + " - " + product.getPrice());
                 }
 
-                System.out.print("Your choice to add to cart: ");
-                int optionAddCart = sc.nextInt();
+                defaultFunctionalityAddToCart(Category.BOOKS,costumer, eletronics, book, clothing);
+            }
+            default -> System.out.println("Invalid option!");
+        }
+    }
 
-                System.out.print("Quantity: ");
-                int quantity = sc.nextInt();
+    private void defaultFunctionalityAddToCart(Category productToAdd, Costumer costumer, Eletronics eletronics, Books book, Clothing clothing) {
 
-                if (optionAddCart == 1) {
-                    costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
+        int quantity;
+        String optionAddCart;
 
-                    System.out.println();
-                } else if (optionAddCart == 2) {
-                    costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else if (optionAddCart == 3) {
-                    costumer.addToShoppingCart(clothing.getClothings().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else {
-                    System.out.println();
-                    throw new DomainException("Invalid option!");
-                }
-            } else if (addOptionSeeProductsfromCategory == 3) {
+        while (true) {
 
-                for (int i = 0; i < book.getBooks().size(); i++) {
-                    System.out.println((i + 1) + ". " + book.getBooks().get(i).getName());
-                }
+            System.out.print("Your choice to add to cart: ");
+            optionAddCart = sc.next();
 
-                System.out.print("Your choice to add to cart: ");
-                int optionAddCart = sc.nextInt();
+            System.out.print("Quantity: ");
+            String quantityInput = sc.next();
 
-                System.out.print("Quantity: ");
-                int quantity = sc.nextInt();
-
-                if (optionAddCart == 1) {
-                    costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else if (optionAddCart == 2) {
-                    costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else if (optionAddCart == 3) {
-                    costumer.addToShoppingCart(book.getBooks().get(optionAddCart - 1), quantity);
-                    System.out.println("Successfully added!");
-                    System.out.println();
-                } else {
-                    System.out.println();
-                    throw new DomainException("Invalid option!");
+            if (containsChoice(Arrays.asList("1", "2", "3"), optionAddCart)) {
+                try {
+                    quantity = Integer.parseInt(quantityInput);
+                    if (quantity > 0) break;
+                    else throw new NumberFormatException();
+                } catch (NumberFormatException e) {
+                    System.out.println("\nPlease enter valid values!");
                 }
             } else {
-                throw new DomainException("Invalid option!");
+                System.out.println("\nPlease enter valid values!");
             }
-        } catch (DomainException e) {
-            System.out.println(e.getMessage());
         }
+
+        if (productToAdd == Category.ELETRONICS)
+            costumer.addToShoppingCart(eletronics.getEletronics().get(Integer.parseInt(optionAddCart) - 1), quantity);
+        else if (productToAdd == Category.CLOTHING)
+            costumer.addToShoppingCart(clothing.getClothings().get(Integer.parseInt(optionAddCart) - 1), quantity);
+        else if (productToAdd == Category.BOOKS)
+            costumer.addToShoppingCart(book.getBooks().get(Integer.parseInt(optionAddCart) - 1), quantity);
+        System.out.println("\nSuccessfully added!");
+
     }
 
     @Override
@@ -358,17 +343,19 @@ public class ShoppingSystem implements IProcess {
 
     }
 
-    public MenuOption getMenuChoice(){
-
-        HashSet<String> options = new HashSet<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+    public MenuOption getMenuChoice() {
 
         System.out.print("Please choose an option: ");
         String choice = sc.next();
 
-        // if "choice" in options
-        if(!options.contains(choice)) return MenuOption.EXCEPTIONS;
+        if (!containsChoice(Arrays.asList("1", "2", "3", "4", "5", "6"), choice)) return MenuOption.EXCEPTIONS;
 
+        // if "choice" in options
         return MenuOption.values()[Integer.parseInt(choice) - 1];
+    }
+
+    public boolean containsChoice(List<String> options, String choice) {
+        return options.contains(choice);
     }
 
     @Override

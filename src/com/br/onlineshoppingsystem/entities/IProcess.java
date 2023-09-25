@@ -8,7 +8,7 @@ import com.br.onlineshoppingsystem.exceptions.DomainException;
 
 public interface IProcess {
     void run();
-    void viewProducts(Eletronics eletronics, Books book, Clothing clothing);
+    void browseProducts(Eletronics eletronics, Books book, Clothing clothing);
     void addToCart(Eletronics eletronics, Books book, Clothing clothing, Costumer costumer);
     void viewCart(Costumer costumer);
     void removeItemFromCart(Eletronics eletronics, Books book, Clothing clothing, Costumer costumer);

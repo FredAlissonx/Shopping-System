@@ -17,7 +17,16 @@ public class ShoppingSystem implements IProcess {
     @Override
     public void run() {
 
-        System.out.println("To create a personalized cart for you, we need you sign up:");
+        System.out.println("""
+                    
+                    ---------------------------------
+                    |                               |
+                    |   WELCOME TO SHOPPING SYSTEM  |
+                    |                               |
+                    ---------------------------------
+                    """);
+
+        System.out.println("-- To create a personalized cart for you, we need you sign up --\n");
 
         String name, email, addressInput;
         long address;
@@ -43,9 +52,6 @@ public class ShoppingSystem implements IProcess {
                 System.out.println("\nInvalid information. Please enter valid values!");
             }
         }
-
-
-        System.out.println("\nWelcome to the Online Shopping System!");
 
         Costumer costumer = new Costumer(name, email, address, new ShoppingCart());
 
@@ -73,16 +79,22 @@ public class ShoppingSystem implements IProcess {
     public void browseProducts(Eletronics eletronics, Books book, Clothing clothing) {
 
         System.out.println("\nAvailable Product Categories:");
-        System.out.println("1. Eletronics");
+        System.out.println("1. Electronics");
         System.out.println("2. Clothing");
         System.out.println("3. Books");
-        System.out.print("Please choose a category to view its products: ");
+        System.out.println("4. Back to menu");
+        System.out.print("Please choose a category to view its products or back to menu: ");
 
         String productChoose = sc.next();
 
-        while (!productChoose.equals("1") && !productChoose.equals("2") && !productChoose.equals("3")) {
+        while (!containsChoice(Arrays.asList("1", "2", "3", "4"), productChoose)) {
 
-            System.out.print("A valid value [1], [2] or [3]: ");
+            System.out.println("\nAvailable Product Categories:");
+            System.out.println("1. Electronics");
+            System.out.println("2. Clothing");
+            System.out.println("3. Books");
+            System.out.println("4. Back to menu");
+            System.out.print("Choose a valid option: ");
             productChoose = sc.next();
 
         }
@@ -106,6 +118,9 @@ public class ShoppingSystem implements IProcess {
                 selectedProducts = book.getBooks();
                 categoryName = "Books";
             }
+            case "4" -> {
+                return;
+            }
             default -> System.out.println("\nPlease a valid option!");
         }
 
@@ -125,77 +140,74 @@ public class ShoppingSystem implements IProcess {
         System.out.println("1. Electronics");
         System.out.println("2. Clothing");
         System.out.println("3. Books");
+        System.out.println("4. Back to menu");
         System.out.print("Your choice: ");
         String addOptionProductsfromCategory = sc.next();
 
         List<Products> productsToSelect;
 
 
-        while (!containsChoice(Arrays.asList("1", "2", "3"), addOptionProductsfromCategory)) {
+        while (!containsChoice(Arrays.asList("1", "2", "3", "4"), addOptionProductsfromCategory)) {
+
             System.out.println("\n1. Electronics");
             System.out.println("2. Clothing");
             System.out.println("3. Books");
-
+            System.out.println("4. Back to menu");
             System.out.print("Please a valid choice: ");
             addOptionProductsfromCategory = sc.next();
-            System.out.println();
+
         }
         switch (addOptionProductsfromCategory) {
             case "1" -> {
 
                 productsToSelect = eletronics.getEletronics();
+                System.out.println();
 
-                for (int i = 0; i < productsToSelect.size(); i++) {
-                    Products product = productsToSelect.get(i);
-                    System.out.println((i + 1) + ". " + product.getName() + " - R$ " + product.getPrice());
-                }
-
-                defaultFunctionalityAddToCart(Category.ELETRONICS,costumer, eletronics, book, clothing);
+                defaultFunctionalityAddToCart(Category.ELETRONICS,costumer, eletronics, book, clothing, productsToSelect);
             }
             case "2" -> {
 
                 productsToSelect = clothing.getClothings();
+                System.out.println();
 
-                for (int i = 0; i < productsToSelect.size(); i++) {
-                    Products product = productsToSelect.get(i);
-                    System.out.println((i + 1) + ". " + product.getName() + " - " + product.getPrice());
-                }
-
-                defaultFunctionalityAddToCart(Category.CLOTHING,costumer, eletronics, book, clothing);
+                defaultFunctionalityAddToCart(Category.CLOTHING,costumer, eletronics, book, clothing, productsToSelect);
             }
             case "3" -> {
 
                 productsToSelect = book.getBooks();
+                System.out.println();
 
-                for (int i = 0; i < productsToSelect.size(); i++) {
-                    Products product = productsToSelect.get(i);
-                    System.out.println((i + 1) + ". " + product.getName() + " - " + product.getPrice());
-                }
-
-                defaultFunctionalityAddToCart(Category.BOOKS,costumer, eletronics, book, clothing);
+                defaultFunctionalityAddToCart(Category.BOOKS,costumer, eletronics, book, clothing, productsToSelect);
             }
             default -> System.out.println("Invalid option!");
         }
     }
 
-    private void defaultFunctionalityAddToCart(Category productToAdd, Costumer costumer, Eletronics eletronics, Books book, Clothing clothing) {
+    private void defaultFunctionalityAddToCart(Category productToAdd, Costumer costumer, Eletronics eletronics, Books book, Clothing clothing, List<Products> productsToSelect) {
 
         int quantity;
         String optionAddCart;
 
         while (true) {
 
+            simplifiedViewProducts(productsToSelect);
+
             System.out.print("Your choice to add to cart: ");
             optionAddCart = sc.next();
+
+            if (optionAddCart.equals("4")) return;
 
             System.out.print("Quantity: ");
             String quantityInput = sc.next();
 
+
             if (containsChoice(Arrays.asList("1", "2", "3"), optionAddCart)) {
                 try {
+
                     quantity = Integer.parseInt(quantityInput);
                     if (quantity > 0) break;
                     else throw new NumberFormatException();
+
                 } catch (NumberFormatException e) {
                     System.out.println("\nPlease enter valid values!");
                 }
@@ -210,8 +222,17 @@ public class ShoppingSystem implements IProcess {
             costumer.addToShoppingCart(clothing.getClothings().get(Integer.parseInt(optionAddCart) - 1), quantity);
         else if (productToAdd == Category.BOOKS)
             costumer.addToShoppingCart(book.getBooks().get(Integer.parseInt(optionAddCart) - 1), quantity);
+
         System.out.println("\nSuccessfully added!");
 
+    }
+    public void simplifiedViewProducts(List<Products> productsToSelect){
+
+        for (int i = 0; i < productsToSelect.size(); i++) {
+            Products product = productsToSelect.get(i);
+            System.out.println((i + 1) + ". " + product.getName() + " - R$" + product.getPrice());
+        }
+        System.out.println("4. Back to menu");
     }
 
     @Override
@@ -360,6 +381,6 @@ public class ShoppingSystem implements IProcess {
 
     @Override
     public boolean isEmailAndNameValidPersonalized(String name, String email) {
-        return !name.isEmpty() && !email.isEmpty();
+        return name.length() > 2 && email.endsWith("@gmail.com") && email.length() > 10;
     }
 }

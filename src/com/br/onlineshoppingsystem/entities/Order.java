@@ -1,6 +1,6 @@
 package com.br.onlineshoppingsystem.entities;
 
-import com.br.onlineshoppingsystem.domain.Costumer;
+import com.br.onlineshoppingsystem.domain.Customer;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,15 +8,15 @@ import java.util.List;
 
 public class Order {
     private List<ShoppingCartItems> products = new ArrayList<>();
-    private Costumer costumer;
+    private Customer customer;
     private LocalDate orderDate;
     private Double orderTotal;
     public Order(){
     }
 
-    public Order(List<ShoppingCartItems> products, Costumer costumer, LocalDate orderDate, Double orderTotal) {
+    public Order(List<ShoppingCartItems> products, Customer customer, LocalDate orderDate, Double orderTotal) {
         this.products = products;
-        this.costumer = costumer;
+        this.customer = customer;
         this.orderDate = orderDate;
         this.orderTotal = orderTotal;
     }
@@ -25,8 +25,8 @@ public class Order {
         return products;
     }
 
-    public Costumer getCostumer() {
-        return costumer;
+    public Customer getCostumer() {
+        return customer;
     }
 
     public LocalDate getOrderDate() {

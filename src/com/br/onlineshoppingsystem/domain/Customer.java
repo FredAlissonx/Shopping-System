@@ -3,16 +3,16 @@ package com.br.onlineshoppingsystem.domain;
 import com.br.onlineshoppingsystem.entities.Products;
 import com.br.onlineshoppingsystem.entities.ShoppingCart;
 
-public class Costumer {
+public class Customer {
     private String name;
     private String email;
     private Long shippingAddress;
     private ShoppingCart shoppingCart;
 
-    public Costumer(){
+    public Customer(){
     }
 
-    public Costumer(String name, String email, Long shippingAddress, ShoppingCart shoppingCart) {
+    public Customer(String name, String email, Long shippingAddress, ShoppingCart shoppingCart) {
         this.name = name;
         this.email = email;
         this.shippingAddress = shippingAddress;

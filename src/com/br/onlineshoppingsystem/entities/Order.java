@@ -2,19 +2,20 @@ package com.br.onlineshoppingsystem.entities;
 
 import com.br.onlineshoppingsystem.domain.Customer;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
     private List<ShoppingCartItems> products = new ArrayList<>();
     private Customer customer;
-    private LocalDate orderDate;
+    private LocalDateTime orderDate;
     private Double orderTotal;
     public Order(){
     }
 
-    public Order(List<ShoppingCartItems> products, Customer customer, LocalDate orderDate, Double orderTotal) {
+    public Order(List<ShoppingCartItems> products, Customer customer, LocalDateTime orderDate, Double orderTotal) {
+
         this.products = products;
         this.customer = customer;
         this.orderDate = orderDate;
@@ -29,7 +30,7 @@ public class Order {
         return customer;
     }
 
-    public LocalDate getOrderDate() {
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 

@@ -7,9 +7,9 @@ import com.br.onlineshoppingsystem.domain.Customer;
 import com.br.onlineshoppingsystem.exceptions.DomainException;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class ShoppingSystem implements IProcess {
     Scanner sc = new Scanner(System.in);
@@ -36,7 +36,7 @@ public class ShoppingSystem implements IProcess {
             System.out.print("Email (@gmail.com): ");
             email = sc.nextLine();  // Change to nextLine() to read the whole line
 
-            System.out.print("Shipping address (CEP/ZIP code): ");
+            System.out.print("Shipping address (CEP/ZIP code - only integers): ");
             addressInput = sc.nextLine();  // Change to nextLine() to read the whole line
 
             if (isEmailAndNameValidPersonalized(name, email)) {
@@ -44,10 +44,16 @@ public class ShoppingSystem implements IProcess {
                     address = Long.parseLong(addressInput);  // Try to parse the input as a long
                     break;  // Break the loop if a valid address is obtained
                 } catch (NumberFormatException e) {
+                    System.out.println("\nInvalid address!");
                     System.out.println("\nInvalid information. Please enter valid values!");
                 }
             } else {
+                System.out.println();
+                if (name.length() <= 2) System.out.println("Invalid name!");
+                if (!email.endsWith("@gmail.com") || email.length() <= 10) System.out.println("Invalid email!");
+
                 System.out.println("\nInvalid information. Please enter valid values!");
+
             }
         }
 
@@ -103,7 +109,7 @@ public class ShoppingSystem implements IProcess {
         System.out.println();
 
         // Verifying option
-        List<Products> selectedProducts = null;
+        List<Products> selectedProducts = new ArrayList<>();
         String categoryName = "";
 
         switch (productChoose) {
@@ -129,7 +135,7 @@ public class ShoppingSystem implements IProcess {
 
         for (int i = 0; i < selectedProducts.size(); i++) {
             Products product = selectedProducts.get(i);
-            System.out.println((i + 1) + ". " + product.getName() + " - " + product.getDescription() + " R$" + product.getPrice());
+            System.out.println((i + 1) + ". " + product.getName() + " - " + product.getDescription() + " $" + product.getPrice());
         }
 
     }
@@ -235,11 +241,10 @@ public class ShoppingSystem implements IProcess {
 
         for (int i = 0; i < productsToSelect.size(); i++) {
             Products product = productsToSelect.get(i);
-            System.out.println((i + 1) + ". " + product.getName() + " - R$" + product.getPrice());
+            System.out.println((i + 1) + ". " + product.getName() + " - $" + product.getPrice());
         }
         System.out.println("4. Back to menu");
     }
-
     @Override
     public void viewCart(Customer customer) {
         int totalItems = 0;
@@ -247,7 +252,7 @@ public class ShoppingSystem implements IProcess {
         System.out.println();
         System.out.println("╔═══════════════════════════════╗");
         System.out.println("║           VIEW CART           ║");
-        System.out.println("╚═══════════════════════════════╝");
+        System.out.println("╚═══════════════════════════════╝\n");
 
         List<ShoppingCartItems> cartItems = customer.getShoppingCart().getItems();
 
@@ -275,62 +280,109 @@ public class ShoppingSystem implements IProcess {
         System.out.println("Total Cost: $" + String.format("%.2f", totalCost));
 
     }
-
-
     @Override
     public void removeItemFromCart(Eletronics eletronics, Books book, Clothing clothing, Customer customer) {
 
-        if (customer.getShoppingCart().getItems().isEmpty()) {
-            System.out.println();
-            System.out.println("Your cart is empty!");
+        System.out.println();
+        System.out.println("╔═══════════════════════════════╗");
+        System.out.println("║           REMOVE ITEM         ║");
+        System.out.println("╚═══════════════════════════════╝\n");
+
+        List<ShoppingCartItems> cartItems = customer.getShoppingCart().getItems();
+
+        // will print the message and return to menu
+        if (cartItems.isEmpty()) {
+            System.out.println("\n--- YOUR CAR IS EMPTY! ---");
             return;
         }
 
-        System.out.println();
-        System.out.println("----- Removing from cart -----");
-        System.out.println();
+        // To view all products
+        simplifiedViewShoppingCartItems(cartItems);
 
-        for (int i = 0; i < customer.getShoppingCart().getItems().size(); i++) {
-            System.out.println((i + 1) + ". " + customer.getShoppingCart().getItems().get(i).getProduct().getName() + " (Qty: " + customer.getShoppingCart().getItems().get(i).getQuantity() + ")");
+        List<String> arrayContainsChoice = new LinkedList<>();
+        for (int i = 1; i <= cartItems.size(); i++){
+            arrayContainsChoice.add(Integer.toString(i));
         }
-        try {
 
-            System.out.print("Item to remove: ");
-            int itemToRemoveByIndex = sc.nextInt();
+        while (true){
+
+            System.out.print("Choice to remove: ");
+            String choice = sc.next();
+
+            if (choice.equals(Integer.toString(cartItems.size() + 1))) return;
 
             System.out.print("Quantity to remove: ");
-            int quantityToRemove = sc.nextInt();
+            String quantityToRemoveInput = sc.next();
 
-            if (itemToRemoveByIndex <= 0 || itemToRemoveByIndex > customer.getShoppingCart().getItems().size() || quantityToRemove < 0 || quantityToRemove > customer.getShoppingCart().getItems().get(itemToRemoveByIndex - 1).getQuantity()) {
-                throw new DomainException("Invalid Option!");
+            int quantityToRemove;
+
+            if (containsChoice(arrayContainsChoice, choice)){
+
+                try{
+                    quantityToRemove = Integer.parseInt(quantityToRemoveInput);
+
+                    ShoppingCartItems itemToRemove = customer.getShoppingCart().getItems().get(Integer.parseInt(choice) - 1);
+
+                    if (quantityToRemove == itemToRemove.getQuantity()){
+
+                        customer.getShoppingCart().removeEntireProduct(itemToRemove);
+
+                    }else if(quantityToRemove < itemToRemove.getQuantity() && quantityToRemove > 0){
+
+                        itemToRemove.decrementQuantity(quantityToRemove);
+
+                    }else{
+                        throw new DomainException("\nInvalid quantity!\n");
+                    }
+                    break;
+
+                }catch (NumberFormatException | DomainException e){
+
+                    if (e instanceof DomainException) System.out.println(e.getMessage());
+                    else System.out.println("\nInvalid option!\n");
+
+                    //to view shopping cart products
+                    simplifiedViewShoppingCartItems(cartItems);
+                }
+
+            }else { // if does not match any option
+
+                System.out.println("\nInvalid option!\n");
+                simplifiedViewShoppingCartItems(cartItems);
+
             }
-
-            ShoppingCartItems itemToRemove = customer.getShoppingCart().getItems().get(itemToRemoveByIndex - 1);
-
-            itemToRemove.decrementQuantity(quantityToRemove);
-
-            if (itemToRemove.getQuantity() == 0) {
-                customer.getShoppingCart().removeEntireProduct(itemToRemove);
-            }
-        } catch (DomainException e) {
-            System.out.println(e.getMessage());
         }
+    }
+    private void simplifiedViewShoppingCartItems(List<ShoppingCartItems> shoppingCartItemsList){
+        for (int i = 0; i < shoppingCartItemsList.size(); i++) {
+
+            String nameItem = shoppingCartItemsList.get(i).getProduct().getName();
+            int itemQuantity = shoppingCartItemsList.get(i).getQuantity();
+
+            System.out.println((i + 1) + ". " + nameItem + " (Qty: " + itemQuantity + ")");
+        }
+        System.out.println((shoppingCartItemsList.size() + 1) + ". Back to menu");
     }
 
     @Override
     public void checkout(Customer customer) {
-        Order order = new Order(customer.getShoppingCart().getItems(), customer, LocalDate.now(), customer.getShoppingCart().totalCost());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss");
+
+        Order order = new Order(customer.getShoppingCart().getItems(), customer, LocalDateTime.now(), customer.getShoppingCart().totalCost());
 
         List<ShoppingCartItems> orderCostumerItems = order.getCostumer().getShoppingCart().getItems();
         int totalItems = 0;
-        System.out.println("----- Checkout -----");
+
         System.out.println();
-        System.out.println("Your order summary:");
+        System.out.println("╔═══════════════════════════════╗");
+        System.out.println("║            CHECKOUT           ║");
+        System.out.println("╚═══════════════════════════════╝");
+        System.out.println("\nYour order summary:");
         for (int i = 0; i < orderCostumerItems.size(); i++) {
             System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + orderCostumerItems.get(i).getQuantity() + ")" + " - $" + String.format("%.2f", orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity()));
             totalItems++;
         }
-        System.out.println("Total Items:" + totalItems);
+        System.out.println("\nTotal Items:" + totalItems);
         System.out.println("Order at " + order.getOrderDate());
         System.out.println("Total Different Items: " + orderCostumerItems.size());
         System.out.println("Total Cost: $" + String.format("%.2f", customer.getShoppingCart().totalCost()));
@@ -368,7 +420,7 @@ public class ShoppingSystem implements IProcess {
     @Override
     public void menuDisplay() {
         System.out.println("════════════════════════════════════");
-        System.out.println("Main menu:");
+        System.out.println("\nMain menu:");
         System.out.println("1. Browse Products");
         System.out.println("2. Add to cart");
         System.out.println("3. View cart");

@@ -9,9 +9,6 @@ public class Customer {
     private Long shippingAddress;
     private ShoppingCart shoppingCart;
 
-    public Customer(){
-    }
-
     public Customer(String name, String email, Long shippingAddress, ShoppingCart shoppingCart) {
         this.name = name;
         this.email = email;

@@ -1,6 +1,6 @@
 package com.br.onlineshoppingsystem.entities;
 
-public enum MenuOption {
+public enum EMenuOption {
     BROWSE_PRODUCTS,
     ADD_TO_CART,
     VIEW_CART,

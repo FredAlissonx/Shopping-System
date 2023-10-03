@@ -7,23 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<ShoppingCartItems> products = new ArrayList<>();
+    private List<ShoppingCartItems> productsShoppingCart;
     private Customer customer;
     private LocalDateTime orderDate;
     private Double orderTotal;
-    public Order(){
-    }
 
-    public Order(List<ShoppingCartItems> products, Customer customer, LocalDateTime orderDate, Double orderTotal) {
+    public Order(List<ShoppingCartItems> productsShoppingCart, Customer customer, LocalDateTime orderDate, Double orderTotal) {
 
-        this.products = products;
+        this.productsShoppingCart = productsShoppingCart;
         this.customer = customer;
         this.orderDate = orderDate;
         this.orderTotal = orderTotal;
     }
 
     public List<ShoppingCartItems> getProducts() {
-        return products;
+        return productsShoppingCart;
     }
 
     public Customer getCostumer() {
@@ -36,5 +34,9 @@ public class Order {
 
     public boolean paymentValidate(int choose){
         return choose > 0 && choose <= 4;
+    }
+
+    public Double getOrderTotal() {
+        return orderTotal;
     }
 }

@@ -6,12 +6,11 @@ import com.br.onlineshoppingsystem.categories.Eletronics;
 import com.br.onlineshoppingsystem.domain.Customer;
 import com.br.onlineshoppingsystem.exceptions.DomainException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class ShoppingSystem implements IProcess {
+public class ShoppingSystem implements IProcess, ICheckout {
     Scanner sc = new Scanner(System.in);
 
     @Override
@@ -63,11 +62,11 @@ public class ShoppingSystem implements IProcess {
 
             menuDisplay();
 
-            MenuOption choiceFromMenuOptions = getMenuChoice();
+            EMenuOption choiceFromEMenuOptions = getMenuChoice();
 
             sc.nextLine();
 
-            switch (choiceFromMenuOptions) {
+            switch (choiceFromEMenuOptions) {
                 case BROWSE_PRODUCTS -> browseProducts(new Eletronics(), new Books(), new Clothing());
                 case ADD_TO_CART -> addToCart(new Eletronics(), new Books(), new Clothing(), customer);
                 case VIEW_CART -> viewCart(customer);
@@ -365,49 +364,65 @@ public class ShoppingSystem implements IProcess {
     }
 
     @Override
-    public void checkout(Customer customer) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss");
+    public void checkout(Customer customer){
 
-        Order order = new Order(customer.getShoppingCart().getItems(), customer, LocalDateTime.now(), customer.getShoppingCart().totalCost());
+
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        List<ShoppingCartItems> shoppingCartItemsList = customer.getShoppingCart().getItems();
+
+        if (shoppingCartItemsList.isEmpty()){
+            System.out.println("\n--- YOUR ORDER IS EMPTY! ---");
+            return;
+        }
+
+        Double totalCostOrder = customer.getShoppingCart().totalCost();
+
+        Order order = new Order(shoppingCartItemsList, customer, LocalDateTime.now(), totalCostOrder);
 
         List<ShoppingCartItems> orderCostumerItems = order.getCostumer().getShoppingCart().getItems();
         int totalItems = 0;
 
-        System.out.println();
+
         System.out.println("╔═══════════════════════════════╗");
         System.out.println("║            CHECKOUT           ║");
         System.out.println("╚═══════════════════════════════╝");
         System.out.println("\nYour order summary:");
+
         for (int i = 0; i < orderCostumerItems.size(); i++) {
-            System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + orderCostumerItems.get(i).getQuantity() + ")" + " - $" + String.format("%.2f", orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity()));
+            Double price = orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity();
+
+            System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + orderCostumerItems.get(i).getQuantity() + ")" + " - $" + String.format("%.2f", price));
             totalItems++;
         }
-        System.out.println("\nTotal Items:" + totalItems);
-        System.out.println("Order at " + order.getOrderDate());
+
+        String formatDate = order.getOrderDate().format(df);
+
+        System.out.println("\nTotal Items: " + totalItems);
+        System.out.println("Order at: " + formatDate);
         System.out.println("Total Different Items: " + orderCostumerItems.size());
-        System.out.println("Total Cost: $" + String.format("%.2f", customer.getShoppingCart().totalCost()));
+        System.out.println("Total Cost: $" + String.format("%.2f", order.getOrderTotal()));
 
-        System.out.println("Shipping address:");
-        System.out.println(order.getCostumer().getName());
-        System.out.println(order.getCostumer().getEmail());
-        System.out.println(order.getCostumer().getShippingAddress());
+        System.out.println("\nShipping address:");
+        System.out.println("Name: " + order.getCostumer().getName());
+        System.out.println("Email: "+ order.getCostumer().getEmail());
+        System.out.println("Shipping address: " + order.getCostumer().getShippingAddress());
 
-        System.out.println("Select Payment Method:");
+        System.out.println("\nSelect Payment Method:");
 
         System.out.println("1. Credit Card");
         System.out.println("2. PayPal");
         System.out.println("3. Pix");
         System.out.println("4. Bitcoin");
-        System.out.println("Method: ");
-        int paymentMethod = sc.nextInt();
 
-        if (order.paymentValidate(paymentMethod)) {
-            System.out.println("Payment Successful!");
-            System.out.println();
-            System.out.println("Your order has been placed. Thank you for shopping with us!");
-        } else {
-            System.out.println("Invalid payment method!");
-            order.paymentValidate(sc.nextInt());
+        EPaymentMethod paymentMethod = getPaymentChoice();
+
+        ICheckout checkout = new ShoppingSystem();
+
+        switch (paymentMethod){
+            case CREDITCARD -> {
+                checkout.creditCard();
+            }
         }
     }
 
@@ -430,15 +445,24 @@ public class ShoppingSystem implements IProcess {
 
     }
 
-    public MenuOption getMenuChoice() {
+    public EMenuOption getMenuChoice() {
 
+        System.out.print("Method: ");
+        String choice = sc.next();
+
+        if (!containsChoice(Arrays.asList("1", "2", "3", "4", "5", "6"), choice)) return EMenuOption.EXCEPTIONS;
+
+        // if "choice" in options
+        return EMenuOption.values()[Integer.parseInt(choice) - 1];
+    }
+    public EPaymentMethod getPaymentChoice(){
         System.out.print("Please choose an option: ");
         String choice = sc.next();
 
-        if (!containsChoice(Arrays.asList("1", "2", "3", "4", "5", "6"), choice)) return MenuOption.EXCEPTIONS;
+        if (!containsChoice(Arrays.asList("1", "2", "3", "4"), choice)) return EPaymentMethod.EXCEPTIONS;
 
         // if "choice" in options
-        return MenuOption.values()[Integer.parseInt(choice) - 1];
+        return EPaymentMethod.values()[Integer.parseInt(choice) - 1];
     }
 
     public boolean containsChoice(List<String> options, String choice) {

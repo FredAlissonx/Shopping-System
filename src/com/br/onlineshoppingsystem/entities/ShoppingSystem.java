@@ -1,6 +1,7 @@
 package com.br.onlineshoppingsystem.entities;
 
 import com.br.onlineshoppingsystem.entities.categories.Books;
+import com.br.onlineshoppingsystem.entities.categories.Category;
 import com.br.onlineshoppingsystem.entities.categories.Clothing;
 import com.br.onlineshoppingsystem.entities.categories.Eletronics;
 import com.br.onlineshoppingsystem.domain.Customer;
@@ -19,11 +20,11 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
     public void run(){
 
         System.out.println();
-        System.out.println("╔═══════════════════════════════╗");
-        System.out.println("║                               ║");
-        System.out.println("║   WELCOME TO SHOPPING SYSTEM  ║");
-        System.out.println("║                               ║");
-        System.out.println("╚═══════════════════════════════╝");
+        System.out.println("    ╔═══════════════════════════════╗");
+        System.out.println("    ║                               ║");
+        System.out.println("    ║   WELCOME TO SHOPPING SYSTEM  ║");
+        System.out.println("    ║                               ║");
+        System.out.println("    ╚═══════════════════════════════╝");
 
         System.out.println("\n-- To create a personalized cart for you, we need you sign up --\n");
 
@@ -368,7 +369,6 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
     @Override
     public void checkout(Customer customer){
 
-
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
         List<ShoppingCartItems> shoppingCartItemsList = customer.getShoppingCart().getItems();
@@ -432,10 +432,13 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
             case BANKTRANSFER -> paymentMethod.bankTransfer(totalCostOrder);
             case PIX -> paymentMethod.pix(totalCostOrder);
             case BITCOIN -> paymentMethod.bitcoin(totalCostOrder);
-            default -> System.out.println("\nGoing back to menu!");
+            case EXCEPTIONS -> {
+                System.out.println("\nInvalid option. Please try again!");
+                return;
+            }
+
         }
 
-        System.out.println("\nYour order was successfully paid");
         orderCostumerItems.clear();
     }
 

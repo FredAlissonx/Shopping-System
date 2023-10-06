@@ -1,5 +1,7 @@
 package com.br.onlineshoppingsystem.entities;
 
+import com.br.onlineshoppingsystem.entities.categories.Category;
+
 public class Products {
     private String name;
     private String description;

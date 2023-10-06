@@ -1,11 +1,11 @@
 package com.br.onlineshoppingsystem.entities;
 
-import com.br.onlineshoppingsystem.categories.Books;
-import com.br.onlineshoppingsystem.categories.Clothing;
-import com.br.onlineshoppingsystem.categories.Eletronics;
+import com.br.onlineshoppingsystem.entities.categories.Books;
+import com.br.onlineshoppingsystem.entities.categories.Clothing;
+import com.br.onlineshoppingsystem.entities.categories.Eletronics;
 import com.br.onlineshoppingsystem.domain.Customer;
 
-public interface IProcess {
+public interface IShoppingSystem {
     void run();
     void browseProducts(Eletronics eletronics, Books book, Clothing clothing);
     void addToCart(Eletronics eletronics, Books book, Clothing clothing, Customer customer);

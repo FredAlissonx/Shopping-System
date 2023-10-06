@@ -14,6 +14,7 @@ public interface IPaymentMethod {
 
     default void creditCard(Double orderTotalCost) {
 
+        // Pattern to format Due date of credit card (month(2 digits) / year (4 digits))
         SimpleDateFormat df = new SimpleDateFormat("MM/yyyy");
 
         System.out.println("\n--- Credit cart ---");
@@ -56,9 +57,11 @@ public interface IPaymentMethod {
                 cvv = Integer.parseInt(cvvInput);
                 dueDate = df.parse(dueDateInput);
 
+                // Due date credit card should not be before the instant now
                 if (dueDate.before(Date.from(Instant.now()))){
                     throw new DomainException("\nPlease a right Due date value!");
                 }
+
                 System.out.println("\nPayment successfully!");
                 break;
 
@@ -75,6 +78,8 @@ public interface IPaymentMethod {
     default void bankTransfer(Double orderTotalCost) {
         while (true) {
             System.out.println("\n--- Bank Transfer ---");
+
+            // Agency
             System.out.print("\nAgency: ");
             String agencyInput = sc.next();
             long agency;
@@ -99,8 +104,10 @@ public interface IPaymentMethod {
         }
     }
     default void pix(Double orderTotalCost){
+        // Pix is the system the Brazilian Central Bank created to bring instant payments to life
         System.out.println("\n--- PIX ---");
 
+        // PIX key to get the payment done
         System.out.println("PIX key: 123456678");
 
         while (true ){

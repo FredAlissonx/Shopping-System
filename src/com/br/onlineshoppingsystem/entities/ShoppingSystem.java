@@ -1,16 +1,18 @@
 package com.br.onlineshoppingsystem.entities;
 
-import com.br.onlineshoppingsystem.categories.Books;
-import com.br.onlineshoppingsystem.categories.Clothing;
-import com.br.onlineshoppingsystem.categories.Eletronics;
+import com.br.onlineshoppingsystem.entities.categories.Books;
+import com.br.onlineshoppingsystem.entities.categories.Clothing;
+import com.br.onlineshoppingsystem.entities.categories.Eletronics;
 import com.br.onlineshoppingsystem.domain.Customer;
+import com.br.onlineshoppingsystem.entities.paymentMethod.EPaymentMethod;
+import com.br.onlineshoppingsystem.entities.paymentMethod.IPaymentMethod;
 import com.br.onlineshoppingsystem.exceptions.DomainException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class ShoppingSystem implements IProcess, ICheckout {
+public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
     Scanner sc = new Scanner(System.in);
 
     @Override
@@ -383,17 +385,18 @@ public class ShoppingSystem implements IProcess, ICheckout {
         List<ShoppingCartItems> orderCostumerItems = order.getCostumer().getShoppingCart().getItems();
         int totalItems = 0;
 
-
         System.out.println("╔═══════════════════════════════╗");
         System.out.println("║            CHECKOUT           ║");
         System.out.println("╚═══════════════════════════════╝");
         System.out.println("\nYour order summary:");
 
         for (int i = 0; i < orderCostumerItems.size(); i++) {
-            Double price = orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity();
 
-            System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + orderCostumerItems.get(i).getQuantity() + ")" + " - $" + String.format("%.2f", price));
-            totalItems++;
+            Double price = orderCostumerItems.get(i).getProduct().getPrice() * orderCostumerItems.get(i).getQuantity();
+            int quantity = orderCostumerItems.get(i).getQuantity();
+            System.out.println((i + 1) + ". " + orderCostumerItems.get(i).getProduct().getName() + "(Qty: " + quantity + ")" + " - $" + String.format("%.2f", price));
+
+            totalItems += quantity;
         }
 
         String formatDate = order.getOrderDate().format(df);
@@ -403,27 +406,37 @@ public class ShoppingSystem implements IProcess, ICheckout {
         System.out.println("Total Different Items: " + orderCostumerItems.size());
         System.out.println("Total Cost: $" + String.format("%.2f", order.getOrderTotal()));
 
+        String orderName = order.getCostumer().getName();
+        String orderNameCapitalized = orderName.substring(0, 1).toUpperCase() + orderName.substring(1);
+        String orderEmail = order.getCostumer().getEmail();
+        long orderShippingAddress = order.getCostumer().getShippingAddress();
+
         System.out.println("\nShipping address:");
-        System.out.println("Name: " + order.getCostumer().getName());
-        System.out.println("Email: "+ order.getCostumer().getEmail());
-        System.out.println("Shipping address: " + order.getCostumer().getShippingAddress());
+        System.out.println("Name: " + orderNameCapitalized);
+        System.out.println("Email: "+ orderEmail);
+        System.out.println("Shipping address: " + orderShippingAddress);
 
         System.out.println("\nSelect Payment Method:");
 
         System.out.println("1. Credit Card");
-        System.out.println("2. PayPal");
+        System.out.println("2. Bank transfer");
         System.out.println("3. Pix");
         System.out.println("4. Bitcoin");
 
-        EPaymentMethod paymentMethod = getPaymentChoice();
+        EPaymentMethod paymentMethodChoice = getPaymentChoice();
 
-        ICheckout checkout = new ShoppingSystem();
+        IPaymentMethod paymentMethod = new ShoppingSystem();
 
-        switch (paymentMethod){
-            case CREDITCARD -> {
-                checkout.creditCard();
-            }
+        switch (paymentMethodChoice){
+            case CREDITCARD -> paymentMethod.creditCard(totalCostOrder);
+            case BANKTRANSFER -> paymentMethod.bankTransfer(totalCostOrder);
+            case PIX -> paymentMethod.pix(totalCostOrder);
+            case BITCOIN -> paymentMethod.bitcoin(totalCostOrder);
+            default -> System.out.println("\nGoing back to menu!");
         }
+
+        System.out.println("\nYour order was successfully paid");
+        orderCostumerItems.clear();
     }
 
     @Override
@@ -447,7 +460,7 @@ public class ShoppingSystem implements IProcess, ICheckout {
 
     public EMenuOption getMenuChoice() {
 
-        System.out.print("Method: ");
+        System.out.print("Your choice: ");
         String choice = sc.next();
 
         if (!containsChoice(Arrays.asList("1", "2", "3", "4", "5", "6"), choice)) return EMenuOption.EXCEPTIONS;
@@ -459,7 +472,7 @@ public class ShoppingSystem implements IProcess, ICheckout {
         System.out.print("Please choose an option: ");
         String choice = sc.next();
 
-        if (!containsChoice(Arrays.asList("1", "2", "3", "4"), choice)) return EPaymentMethod.EXCEPTIONS;
+        if (!containsChoice(Arrays.asList("1", "2", "3", "4", "5"), choice)) return EPaymentMethod.EXCEPTIONS;
 
         // if "choice" in options
         return EPaymentMethod.values()[Integer.parseInt(choice) - 1];

@@ -1,6 +1,5 @@
-package com.br.onlineshoppingsystem.categories;
+package com.br.onlineshoppingsystem.entities.categories;
 
-import com.br.onlineshoppingsystem.entities.Category;
 import com.br.onlineshoppingsystem.entities.Products;
 
 import java.util.ArrayList;

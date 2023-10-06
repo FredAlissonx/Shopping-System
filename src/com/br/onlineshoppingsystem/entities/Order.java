@@ -1,40 +1,42 @@
 package com.br.onlineshoppingsystem.entities;
 
-import java.time.LocalDate;
+import com.br.onlineshoppingsystem.domain.Customer;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<ShoppingCartItems> products = new ArrayList<>();
-    private Costumer costumer;
-    private LocalDate orderDate;
+    private List<ShoppingCartItems> productsShoppingCart;
+    private Customer customer;
+    private LocalDateTime orderDate;
     private Double orderTotal;
-    public Order(){
-    }
 
-    public Order(List<ShoppingCartItems> products, Costumer costumer, LocalDate orderDate, Double orderTotal) {
-        this.products = products;
-        this.costumer = costumer;
+    public Order(List<ShoppingCartItems> productsShoppingCart, Customer customer, LocalDateTime orderDate, Double orderTotal) {
+
+        this.productsShoppingCart = productsShoppingCart;
+        this.customer = customer;
         this.orderDate = orderDate;
         this.orderTotal = orderTotal;
     }
 
     public List<ShoppingCartItems> getProducts() {
-        return products;
+        return productsShoppingCart;
     }
 
-    public Costumer getCostumer() {
-        return costumer;
+    public Customer getCostumer() {
+        return customer;
     }
 
-    public LocalDate getOrderDate() {
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
     public boolean paymentValidate(int choose){
-            if (choose <= 0 || choose > 4){
-                return false;
-            }
-            return true;
+        return choose > 0 && choose <= 4;
+    }
+
+    public Double getOrderTotal() {
+        return orderTotal;
     }
 }

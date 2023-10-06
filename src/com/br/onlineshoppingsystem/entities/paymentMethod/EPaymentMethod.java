@@ -1,8 +1,8 @@
-package com.br.onlineshoppingsystem.entities;
+package com.br.onlineshoppingsystem.entities.paymentMethod;
 
 public enum EPaymentMethod {
     CREDITCARD,
-    PAYPAL,
+    BANKTRANSFER,
     PIX,
     BITCOIN,
     EXCEPTIONS

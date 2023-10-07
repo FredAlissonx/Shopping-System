@@ -24,7 +24,7 @@ public class Order {
         return productsShoppingCart;
     }
 
-    public Customer getCostumer() {
+    public Customer getCustomer() {
         return customer;
     }
 

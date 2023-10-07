@@ -382,7 +382,7 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
 
         Order order = new Order(shoppingCartItemsList, customer, LocalDateTime.now(), totalCostOrder);
 
-        List<ShoppingCartItems> orderCostumerItems = order.getCostumer().getShoppingCart().getItems();
+        List<ShoppingCartItems> orderCostumerItems = order.getCustomer().getShoppingCart().getItems();
         int totalItems = 0;
 
         System.out.println("╔═══════════════════════════════╗");
@@ -406,10 +406,10 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
         System.out.println("Total Different Items: " + orderCostumerItems.size());
         System.out.println("Total Cost: $" + String.format("%.2f", order.getOrderTotal()));
 
-        String orderName = order.getCostumer().getName();
+        String orderName = order.getCustomer().getName();
         String orderNameCapitalized = orderName.substring(0, 1).toUpperCase() + orderName.substring(1);
-        String orderEmail = order.getCostumer().getEmail();
-        long orderShippingAddress = order.getCostumer().getShippingAddress();
+        String orderEmail = order.getCustomer().getEmail();
+        long orderShippingAddress = order.getCustomer().getShippingAddress();
 
         System.out.println("\nShipping address:");
         System.out.println("Name: " + orderNameCapitalized);
@@ -444,7 +444,12 @@ public class ShoppingSystem implements IShoppingSystem, IPaymentMethod {
 
     @Override
     public void exit() {
-        System.out.println("\nThanks for using our Online Shopping System!");
+        System.out.println();
+        System.out.println("    ╔═══════════════════════════════╗");
+        System.out.println("    ║                               ║");
+        System.out.println("    ║  THANKS FOR USING OUR SYSTEM! ║");
+        System.out.println("    ║                               ║");
+        System.out.println("    ╚═══════════════════════════════╝");
         System.exit(0);
     }
 

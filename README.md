@@ -31,6 +31,10 @@ Pure Java utilizing OOP principles (Inheritance, Polymorphism, Abstraction, and 
 
 ![checkout](https://github.com/FredAlissonx/Online-Shopping-System/assets/102878055/078a72f6-f42d-48f8-9b3b-c1f8e739e759)
 
+- **Exit:** Exit program with a message. ✅
+
+![exit](https://github.com/FredAlissonx/Online-Shopping-System/assets/102878055/cdf3bb18-d0f6-42f4-b438-b52199d79617)
+
 **<hr>**
 
 ## What did I learn or improve from this project?

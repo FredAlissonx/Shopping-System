@@ -1,5 +1,7 @@
 # Online Shopping System
 
+
+## Forked repository for study by Rayan Argolo   🤪
 Simulates the process of **browsing** products, **adding** them to a cart, **viewing** the cart, **removing** items, and **checking out**. This project involves designing classes representing various aspects of an online store, implementing **CRUD (CREATE, READ, UPDATE, DELETE)** operations, and incorporating additional functionalities.
 
 # Used technologies

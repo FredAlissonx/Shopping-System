@@ -1,14 +1,13 @@
 package com.br.onlineshoppingsystem.application;
 
-import com.br.onlineshoppingsystem.entities.ShoppingSystem;
-
-import java.util.Locale;
-
+import com.br.onlineshoppingsystem.services.ShoppingSystemService;
 
 public class App {
     public static void main(String[] args) {
-        ShoppingSystem shoppingSystem = new ShoppingSystem();
-        shoppingSystem.run();
-
+        try {
+            new ShoppingSystemService().run();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }

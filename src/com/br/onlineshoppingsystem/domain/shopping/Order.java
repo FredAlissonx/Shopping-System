@@ -1,27 +1,26 @@
-package com.br.onlineshoppingsystem.entities;
+package com.br.onlineshoppingsystem.domain.shopping;
 
-import com.br.onlineshoppingsystem.domain.Customer;
+import com.br.onlineshoppingsystem.domain.customer.Customer;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<ShoppingCartItems> productsShoppingCart;
+    private List<Purchase> purchases;
     private Customer customer;
     private LocalDateTime orderDate;
     private Double orderTotal;
 
-    public Order(List<ShoppingCartItems> productsShoppingCart, Customer customer, LocalDateTime orderDate, Double orderTotal) {
+    public Order(List<Purchase> purchases, Customer customer, LocalDateTime orderDate, Double orderTotal) {
 
-        this.productsShoppingCart = productsShoppingCart;
+        this.purchases = purchases;
         this.customer = customer;
         this.orderDate = orderDate;
         this.orderTotal = orderTotal;
     }
 
-    public List<ShoppingCartItems> getProducts() {
-        return productsShoppingCart;
+    public List<Purchase> getPurchases() {
+        return purchases;
     }
 
     public Customer getCustomer() {

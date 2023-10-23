@@ -2,351 +2,274 @@ package com.br.onlineshoppingsystem.services;
 
 import com.br.onlineshoppingsystem.domain.customer.Customer;
 import com.br.onlineshoppingsystem.domain.shopping.*;
-import com.br.onlineshoppingsystem.domain.shopping.Cart;
 import com.br.onlineshoppingsystem.enums.*;
-import com.br.onlineshoppingsystem.interfaces.Actions;
 
-import com.br.onlineshoppingsystem.interfaces.PaymentService;
+import com.br.onlineshoppingsystem.interfaces.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class ShoppingSystemService implements Actions {
+public class ShoppingSystemService implements Validatable {
+
+    private ProductProviderService productProviderService = new ProductProviderService();
     private static Scanner sc = new Scanner(System.in);
+
+    public ShoppingSystemService() {
+    }
 
     public void run() {
 
-        String name, email, auxAddress;
+        System.out.print("Name: ");
+        String name = sc.nextLine();
+        if (!validName(name)) throw new RuntimeException("Illegal name!");
 
+        System.out.print("Email (@gmail.com): ");
+        String email = sc.nextLine();
+        if (!validEmail(email)) throw new RuntimeException("Illegal email!");
 
+        System.out.print("Shipping address (CEP/ZIP code - only integers): ");
+        long adress = sc.nextLong();
+        if (!validAdress(adress)) throw new RuntimeException("Illegal adress!");
+
+        Customer customer = new Customer(name, email, adress, new Cart());
+
+        loop:
         while (true) {
 
-            printMenu();
+            PrinterService.printMenu();
 
-            System.out.print("Name: ");
-            name = sc.nextLine();
-            if (!validName(name)) throw new RuntimeException("Illegal name!");
+            System.out.println("\n Main menu:");
+            System.out.println("════════════════════════════════════");
 
-            System.out.print("Email (@gmail.com): ");
-            email = sc.nextLine();
-            if (!validEmail(email)) throw new RuntimeException("Illegal email!");
+            Option option = getChoice(Option.class);
 
-            System.out.print("Shipping address (CEP/ZIP code - only integers): ");
-            auxAddress = sc.nextLine();
-            if (!validAdress(auxAddress)) throw new RuntimeException("Illegal adress!");
-            Long adress = Long.parseLong(auxAddress);
-
-            Customer customer = new Customer(name, email, adress, new Cart());
-            Option choice = getChoice(Option.getOptions().size());
-
-            switch (choice) {
+            switch (option) {
                 case BROWSE_PRODUCTS -> browseProducts();
                 case ADD_TO_CART -> addToCart(customer);
                 case VIEW_CART -> viewCart(customer);
-                case REMOVE_FROM_CART -> removePurchaseFromCart(customer);
+                case REMOVE_FROM_CART -> removeFromCart(customer);
                 case CHECKOUT -> checkout(customer);
                 case EXIT -> {
                     exit();
+                    break loop;
                 }
-
             }
         }
     }
 
-    //To print a menu more separately
-    private static void printMenu() {
+    //Receives enum class and total enum list size, returns element in index choice - 1
+    private <T extends Enum<T>> T getChoice(Class<T> enumClass) {
 
+        T[] elements = enumClass.getEnumConstants();
+        PrinterService.print(elements);
+
+        System.out.print("Your choice: ");
+        int choice = sc.nextInt();
+
+        while (!validChoice(choice, elements.length)) {
+            System.out.println();
+            System.out.println("Invalid!");
+            PrinterService.print(elements);
+            System.out.print("Your choice: ");
+            choice = sc.nextInt();
+        }
+
+        return elements[choice - 1];
+    }
+
+
+    private void browseProducts() {
         System.out.println();
-        System.out.println("    ╔═══════════════════════════════╗");
-        System.out.println("    ║                               ║");
-        System.out.println("    ║   WELCOME TO SHOPPING SYSTEM  ║");
-        System.out.println("    ║                               ║");
-        System.out.println("    ╚═══════════════════════════════╝");
-
-        System.out.println("\n-- To create a personalized cart for you, we need you sign up --\n");
-    }
-
-    private boolean validName(String name) {
-        return name.length() > 2;
-    }
-
-    private boolean validEmail(String email) {
-        return email.endsWith("@gmail.com") && email.length() > 10;
-    }
-
-    private boolean validAdress(String adress) {
-        return adress.length() == 8;
-    }
-
-    private static void printDisplay() {
-        System.out.println("\n Main menu:");
-        System.out.println("════════════════════════════════════");
-        List<Option> options = Option.getOptions();
-        options.forEach(e -> System.out.println((options.indexOf(e) + 1) + "." + e));
-    }
-
-
-    private void printOthers(String title, String statement) {
-
-        System.out.println(title);
-        List<Category> categories = Category.getCategories();
-
-        System.out.println(statement);
-        categories.forEach(c -> System.out.println((categories.indexOf(c) + 1) + "." + c));
-        System.out.println("4. Back to menu");
-    }
-
-    @Override
-    public void browseProducts() {
 
         String title = "╔════════════════════════════════╗" +
                 "       ║  AVAILABLE PRODUCT CATEGORIES  ║" +
                 "       ╚════════════════════════════════╝";
 
         String statement = "Categories";
-        printOthers(title, statement);
-
-        System.out.print("Please choose a category to view its products or back to menu: ");
-        int choice = sc.nextInt();
-
-        while (!validChoice(choice, Category.getCategories().size())) {
-            System.out.println("Invalid!");
-            printOthers(title, statement);
-            System.out.print("Please choose a category to view its products or back to menu: ");
-            choice = sc.nextInt();
-        }
+        PrinterService.printTitle(title, statement);
+        Category category = getChoice(Category.class);
 
         // Verifying option
-        List<Product> selectedProducts = new ArrayList<>();
-        String categoryName = "";
+        List<Product> products;
+        String categoryName;
 
-        switch (choice) {
-            case 1 -> {
-                selectedProducts = getEletronics();
+        switch (category) {
+            case ELETRONICS -> {
+                products = productProviderService.getEletronics();
                 categoryName = "Electronics";
             }
-            case 2 -> {
-                selectedProducts = getClothings();
+            case CLOTHINGS -> {
+                products = productProviderService.getClothings();
                 categoryName = "Clothing";
             }
-            case 3 -> {
-                selectedProducts = getBooks();
+            case BOOKS -> {
+                products = productProviderService.getBooks();
                 categoryName = "Books";
             }
-            case 4 -> {
+            default -> {
                 return;
             }
         }
 
         System.out.println("Here are the products in the " + categoryName + " category: \n");
-        printSelectedProducts(selectedProducts);
+        PrinterService.printProducts(products);
 
     }
 
-    private void printSelectedProducts(List<Product> selectedProducts) {
-        selectedProducts.forEach(p -> {
-            System.out.println((selectedProducts.indexOf(p) + 1) + ". " + p.getName() + " - " + p.getDescription() + " $" + p.getPrice());
-        });
-    }
-
-
-    private List<Product> getEletronics() {
-        return Arrays.asList(
-                new Product("Men's Classic T-Shirt", "A comfortable and versatile men's t-shirt made from soft cotton.", 19.99, Category.CLOTHINGS),
-                new Product("Women's Skinny Jeans", "Stylish and fitted women's jeans with a modern skinny fit.", 39.99, Category.CLOTHINGS),
-                new Product("Unisex Hooded Sweatshirt", "A cozy and warm unisex sweatshirt with a hood and front pouch pocket.", 29.99, Category.CLOTHINGS)
-        );
-    }
-
-    private List<Product> getClothings() {
-        return Arrays.asList(
-                new Product("Laptop", "High-performance laptop for work and gaming.", 999.99, Category.ELETRONICS),
-                new Product("Smartphone", "The latest smartphone with advanced features.", 699.99, Category.ELETRONICS),
-                new Product("Headphones", "Noise-canceling headphones for immersive audio.", 149.99, Category.ELETRONICS)
-        );
-    }
-
-    private List<Product> getBooks() {
-        return Arrays.asList(
-                new Product("To Kill a Mockingbird by Harper Lee", "A classic novel that addresses issues of racism and moral growth in the American South.", 12.99, Category.BOOKS),
-                new Product("The Great Gatsby by F. Scott Fitzgerald", "A novel set in the 1920s, exploring themes of wealth, excess, and the American Dream.", 10.49, Category.BOOKS),
-                new Product("Becoming by Michelle Obama", "A memoir by the former First Lady, recounting her personal journey and experiences in the White House.", 18.99, Category.BOOKS)
-        );
-    }
-
-
-    @Override
-    public void addToCart(Customer customer) {
+    private void addToCart(Customer customer) {
 
         String title = "╔════════════════════════════════╗" +
                 "       ║          ADD TO CART           ║" +
                 "       ╚════════════════════════════════╝";
 
         String statement = "From what category: ";
-        printOthers(title, statement);
 
-        int choice = sc.nextInt();
-        List<Product> productsToSelect;
+        PrinterService.printTitle(title, statement);
 
-        while (!validChoice(choice, Category.getCategories().size())) {
-            System.out.println("Invalid!");
-            printOthers(title, statement);
-            System.out.println("Your choice: ");
-            choice = sc.nextInt();
-        }
+        Category category = getChoice(Category.class);
+        List<Product> products;
 
-        switch (choice) {
-            case 1 -> {
-                productsToSelect = getEletronics();
-                System.out.println();
-
-                add(Category.ELETRONICS, customer, productsToSelect);
-            }
-            case 2 -> {
-
-                productsToSelect = getClothings();
-                System.out.println();
-
-                add(Category.CLOTHINGS, customer, productsToSelect);
-            }
-            case 3 -> {
-
-                productsToSelect = getBooks();
-                System.out.println();
-
-                add(Category.BOOKS, customer, productsToSelect);
+        switch (category) {
+            case BOOKS -> products = productProviderService.getBooks();
+            case CLOTHINGS -> products = productProviderService.getClothings();
+            case ELETRONICS -> products = productProviderService.getEletronics();
+            default -> {
+                return;
             }
         }
+
+        add(category, customer, products);
+
     }
 
-    private void add(Category category, Customer customer, List<Product> productsToSelect) {
+    private void add(Category category, Customer customer, List<Product> products) {
 
-        int quantity;
-        int choice;
+        PrinterService.printProducts(products);
+        System.out.println("4. Back");
 
-        while (true) {
+        System.out.print("Your choice to add to cart: ");
+        int choice = sc.nextInt();
+
+        if (choice == 4) return;
+
+        while (!validChoice(choice, products.size())) {
+
+            System.out.println("Invalid!");
 
             //Print products in simplified format;
-            productsToSelect.forEach(p -> {
-                System.out.println(((productsToSelect.indexOf(p) + 1) + p.getName() + " - $" + p.getPrice()));
-            });
+            products.forEach(p -> System.out.println(((products.indexOf(p) + 1) + p.getName() + " - $" + p.getPrice())));
             System.out.println("4. Back");
 
             System.out.print("Your choice to add to cart: ");
             choice = sc.nextInt();
+        }
 
-            if (choice == 4) return;
+        Product product = null;
+        switch (category) {
+            case ELETRONICS -> product = productProviderService.getEletronics().get(choice - 1);
+            case BOOKS -> product = productProviderService.getBooks().get(choice - 1);
+            case CLOTHINGS -> product = productProviderService.getClothings().get(choice - 1);
+        }
 
-            while (!validChoice(choice, productsToSelect.size())) {
+        System.out.print("Quantity: ");
+        int quantity = sc.nextInt();
 
-                System.out.println("Invalid!");
-
-                //Print products in simplified format;
-                productsToSelect.forEach(p -> {
-                    System.out.println(((productsToSelect.indexOf(p) + 1) + p.getName() + " - $" + p.getPrice()));
-                });
-                System.out.println("4. Back");
-
-                System.out.print("Your choice to add to cart: ");
-                choice = sc.nextInt();
-            }
-
+        while (quantity <= 0) {
+            System.out.println("Invalid!");
             System.out.print("Quantity: ");
             quantity = sc.nextInt();
-
-            while (quantity <= 0) {
-                System.out.println("Invalid!");
-                System.out.print("Quantity: ");
-                quantity = sc.nextInt();
-            }
-
-            boolean sucess = false;
-
-            switch (category) {
-                case ELETRONICS:
-                    sucess = add(customer, getEletronics().get(choice - 1), quantity);
-                    break;
-                case BOOKS:
-                    sucess = add(customer, getBooks().get(choice - 1), quantity);
-                    break;
-                case CLOTHINGS:
-                    sucess = add(customer, getClothings().get(choice - 1), quantity);
-                    break;
-            }
-
-            if (!sucess) throw new RuntimeException("Failed addition!");
         }
+
+        Purchase purchase = new Purchase(product, quantity);
+        final int finalQuantity = quantity;
+
+        System.out.println();
+
+        if (customer.getCart().getPurchases().contains(purchase)) {
+
+            //Increment
+            customer.getCart().getPurchases().stream()
+                    .filter(p -> p.equals(purchase))
+                    .findFirst()
+                    .ifPresent(pp -> pp.incrementQuantity(finalQuantity));
+
+            System.out.println("More " + quantity + " for the " + purchase.getProduct().getName() + " !");
+
+        } else {
+
+            //Add
+            boolean sucess = customer.getCart().addPurchase(purchase);
+            if (!sucess) throw new RuntimeException("Failed to add new purchase!");
+
+            System.out.println("New purchase in cart: " + product.getName() + " with " + quantity + " units!");
+        }
+
+        System.out.println();
     }
 
-    private boolean add(Customer customer, Product product, int quantity) {
-        return customer.getCart().addPurchase(product, quantity);
-    }
 
+    private void viewCart(Customer customer) {
 
-    @Override
-    public void viewCart(Customer customer) {
+        List<Purchase> purchases = customer.getCart().getPurchases();
 
-        List<Purchase> cartItems = customer.getCart().getPurchases();
-
-        if (cartItems.isEmpty()) {
+        if (purchases.isEmpty()) {
             System.out.println();
             System.out.println("--- YOUR CAR IS EMPTY! ---");
             return;
         }
 
-        System.out.println();
-        System.out.println("╔═══════════════════════════════╗");
-        System.out.println("║           VIEW CART           ║");
-        System.out.println("╚═══════════════════════════════╝\n");
+        String title = "╔════════════════════════════════╗" +
+                "       ║            VIEW CART           ║ " +
+                "       ╚════════════════════════════════╝";
 
+        String statement = "Looking at the cart";
+        PrinterService.printTitle(title, statement);
 
-        //Add stream API code
-        int totalItems = cartItems.stream()
-                .map(Purchase::getQuantity)
-                .mapToInt(Integer::intValue)
-                .sum();
+        for (Purchase purchase : purchases) {
 
-        for (int i = 0; i < cartItems.size(); i++) {
-
-            Purchase purchase = cartItems.get(i);
             Product product = purchase.getProduct();
             int quantity = purchase.getQuantity();
-            double cost = quantity * product.getPrice();
+            Double cost = quantity * product.getPrice();
 
-            System.out.println((i + 1) + ". "
+            System.out.println((purchases.indexOf(purchase) + 1) + ". "
                     + purchase.getProduct().getName()
                     + " (Qty: " + quantity + ") - $"
                     + String.format("%.2f", cost));
         }
 
-        //Use stream API
-        double totalCost = customer.getCart().getPurchases()
-                .stream()
+        //Add stream API code
+        int totalItems = purchases.stream()
+                .map(Purchase::getQuantity)
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        Double totalCost = purchases.stream()
                 .map(Purchase::getProduct)
                 .map(Product::getPrice)
                 .mapToDouble(Double::doubleValue)
                 .sum();
 
-        System.out.println("\nTotal Items: " + totalItems);
+        System.out.println("\nTotal products: " + totalItems);
         System.out.println("Total Cost: $" + String.format("%.2f", totalCost));
 
     }
 
-    @Override
-    public void removePurchaseFromCart(Customer customer) {
+
+    private void removeFromCart(Customer customer) {
 
         String title = "╔════════════════════════════════╗" +
                 "       ║           REMOVE ITEM          ║ " +
                 "       ╚════════════════════════════════╝";
 
-        String statemant = "Removing...";
-        printOthers(title, statemant);
+        String statement = "Removing...";
+        PrinterService.printTitle(title, statement);
 
         List<Purchase> purchases = customer.getCart().getPurchases();
 
         // will print the message and return to menu
         if (purchases.isEmpty()) {
+            System.out.println();
             System.out.println("\n--- YOUR CAR IS EMPTY! ---");
             return;
         }
@@ -354,30 +277,29 @@ public class ShoppingSystemService implements Actions {
         while (true) {
 
             // To view all products
-            printProducts(purchases);
+            PrinterService.printPurchases(purchases);
 
             System.out.print("Choice to remove: ");
             int choice = sc.nextInt();
 
+            if (choice == purchases.size() + 1) return;
+
             while (!validChoice(choice, purchases.size())) {
                 System.out.println("\nInvalid option!\n");
-                printProducts(purchases);
+                PrinterService.printPurchases(purchases);
                 System.out.print("Choice to remove: ");
                 choice = sc.nextInt();
             }
-
-            if (choice == purchases.size() + 1) return;
 
             Purchase purchase = customer.getCart().getPurchases().get(choice - 1);
 
             System.out.print("Quantity to remove: ");
             int quantity = sc.nextInt();
+            if (!validQuantity(quantity, purchase.getQuantity())) throw new RuntimeException("Invalid quantity!");
 
-            if (!validQuantity(quantity, purchase.getQuantity())) {
-                throw new RuntimeException("Invalid quantity!");
-            }
 
             if (quantity == purchase.getQuantity()) {
+                //Remove
                 boolean sucess = customer.getCart().removePurchase(purchase);
                 if (!sucess) throw new RuntimeException("Error! ");
 
@@ -386,24 +308,16 @@ public class ShoppingSystemService implements Actions {
                 purchase.decrementQuantity(quantity);
             }
 
+
+            //If have removed all purchases
+            if (purchases.isEmpty()) {
+                System.out.println("Cart is empty!");
+                return;
+            }
         }
     }
 
-    private boolean validQuantity(int quantity, int purchaseQuantity) {
-        return (quantity > 0) && (quantity <= purchaseQuantity);
-    }
-
-    private void printProducts(List<Purchase> purchases) {
-        purchases.forEach(p -> {
-            System.out.println((purchases.indexOf(p) + 1) +
-                    ". " + p.getProduct().getName() + " (Qty: " + p.getQuantity() + ")");
-        });
-        System.out.println((purchases.size() + 1) + ". Back to menu");
-    }
-
-
-    @Override
-    public void checkout(Customer customer) {
+    private void checkout(Customer customer) {
 
         List<Purchase> purchases = customer.getCart().getPurchases();
 
@@ -413,74 +327,62 @@ public class ShoppingSystemService implements Actions {
         }
 
         //Add Streams API
-        Double costOrder = customer.getCart().getPurchases().stream()
-                .map(p -> p.getProduct().getPrice())
-                .mapToDouble(Double::doubleValue)
+        Double costOrder = purchases.stream()
+                .map(Purchase::getProduct)
+                .mapToDouble(Product::getPrice)
                 .sum();
-
-        Order order = new Order(purchases, customer, LocalDateTime.now(), costOrder);
-        List<Purchase> costumerPurchases = order.getCustomer().getCart().getPurchases();
 
         System.out.println("╔═══════════════════════════════╗");
         System.out.println("║            CHECKOUT           ║");
         System.out.println("╚═══════════════════════════════╝");
         System.out.println("\nYour order summary:");
 
-        int totalPurchases = costumerPurchases.stream().
+        for (Purchase purchase : purchases) {
+
+            int quantity = purchase.getQuantity();
+            Double price = purchase.getProduct().getPrice();
+            String name = purchase.getProduct().getName();
+
+            System.out.println((purchases.indexOf(purchase) + 1) + ". "
+                    + name + "(Qty: " + quantity + ")"
+                    + " - $" + String.format("%.2f", price));
+        }
+
+
+        int totalPurchases = purchases.stream().
                 map(Purchase::getQuantity)
                 .mapToInt(Integer::intValue)
                 .sum();
+        System.out.println("\nTotal Purchases: " + totalPurchases);
 
-        for (int i = 0; i < costumerPurchases.size(); i++) {
-
-            int quantity = costumerPurchases.get(i).getQuantity();
-            Double price = costumerPurchases.get(i).getProduct().getPrice();
-            Double total = price * quantity;
-            String name = costumerPurchases.get(i).getProduct().getName();
-
-            System.out.println((i + 1) + ". " + name + "(Qty: " + quantity + ")" + " - $" + String.format("%.2f", price));
-        }
-
-
-        System.out.println("\nTotal Items: " + totalPurchases);
-
-        String formatDate = order.getOrderDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String formatDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         System.out.println("Order at: " + formatDate);
 
-        System.out.println("Total Different Purchases: " + costumerPurchases.size());
+        System.out.println("Total Different Purchases: " + purchases.size());
 
-        System.out.println("Total Cost: $" + String.format("%.2f", order.getOrderTotal()));
 
-        String orderName = order.getCustomer().getName().substring(0, 1).toUpperCase().concat(order.getCustomer().getName().substring(1));
-        String orderEmail = order.getCustomer().getEmail();
-        long orderShippingAddress = order.getCustomer().getShippingAddress();
+        Double cost = purchases.stream()
+                .mapToDouble(p -> p.getProduct().getPrice())
+                .sum();
+
+        System.out.println("Total Cost: $" + String.format("%.2f", cost));
 
         System.out.println("\nShipping address:");
-        System.out.println("Name: " + orderName);
-        System.out.println("Email: " + orderEmail);
-        System.out.println("Shipping address: " + orderShippingAddress);
+
+        String customerNameFormat = customer.getName().toUpperCase().substring(0, 1)
+                .concat(customer.getName().toLowerCase().substring(1));
+        System.out.println("Name: " + customerNameFormat);
+
+        String customerEmail = customer.getEmail();
+        System.out.println("Email: " + customerEmail);
+
+        long customerAdress = customer.getAdress();
+        System.out.println("Shipping address: " + customerAdress);
 
         System.out.println("\nSelect Payment Method:");
-        com.br.onlineshoppingsystem.enums.PaymentType.getOptions().forEach(p -> {
-            int id = com.br.onlineshoppingsystem.enums.PaymentType.getOptions().indexOf(p) + 1;
-            System.out.println(id + ". " + p);
-        });
+        PaymentType paymentType = getChoice(PaymentType.class);
 
-        int choice = sc.nextInt();
-        while (!validChoice(choice, com.br.onlineshoppingsystem.enums.PaymentType.getOptions().size())) {
-            System.out.println("Invalid!");
-
-            System.out.println("\nSelect Payment Method:");
-            PaymentType.getOptions().forEach(p -> {
-                int id = com.br.onlineshoppingsystem.enums.PaymentType.getOptions().indexOf(p) + 1;
-                System.out.println(id + ". " + p);
-            });
-        }
-
-        PaymentType paymentType = com.br.onlineshoppingsystem.enums.PaymentType.getOptions().get(choice - 1);
         PaymentService paymentService = null;
-
-
         switch (paymentType) {
             case CREDIT_CARD -> paymentService = new CreditCardService();
             case BANK_TRANSFER -> paymentService = new BankTransferService();
@@ -489,10 +391,12 @@ public class ShoppingSystemService implements Actions {
         }
 
         paymentService.pay(costOrder);
-        costumerPurchases.clear();
+
+        //Clear purchases in the cart
+        purchases.clear();
+        System.out.println(customerNameFormat + "'s cart is empty :)");
     }
 
-    @Override
     public void exit() {
         System.out.println();
         System.out.println("    ╔═══════════════════════════════╗");
@@ -500,29 +404,6 @@ public class ShoppingSystemService implements Actions {
         System.out.println("    ║  THANKS FOR USING OUR SYSTEM! ║");
         System.out.println("    ║                               ║");
         System.out.println("    ╚═══════════════════════════════╝");
-        System.exit(0);
     }
-
-
-    public Option getChoice(int total) {
-
-        printDisplay();
-        System.out.print("Your choice: ");
-        int choice = sc.nextInt();
-
-        while (!validChoice(choice, total)) {
-            System.out.println("Invalid!");
-            printDisplay();
-            System.out.print("Your choice: ");
-            choice = sc.nextInt();
-        }
-
-        return Option.getOptions().get(choice - 1);
-    }
-
-    private boolean validChoice(int choice, int total) {
-        return choice > 0 && choice <= total;
-    }
-
 
 }

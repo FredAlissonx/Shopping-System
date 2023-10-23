@@ -15,7 +15,6 @@ public class BankTransferService implements PaymentService {
         System.out.println("Value to pay: " + String.format("%.2f", orderCost));
         System.out.println("Payment successfull!");
 
-
     }
 }
 

@@ -1,12 +1,11 @@
 package com.br.onlineshoppingsystem.services;
 
 import com.br.onlineshoppingsystem.interfaces.PaymentService;
+import com.br.onlineshoppingsystem.interfaces.Validatable;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
 
-public class CreditCardService implements PaymentService {
+public class CreditCardService implements PaymentService, Validatable {
 
     @Override
     public void pay(Double orderCost) {
@@ -17,7 +16,7 @@ public class CreditCardService implements PaymentService {
         System.out.println("\n--- Credit cart ---");
         System.out.println("\nValue to pay: " + String.format("%.2f", orderCost));
 
-        System.out.print("Write a card number to go back to menu: ");
+        System.out.print("Write a card number: ");
         long cardNumber = getScanner().nextLong();
         if (!validCardNumber(cardNumber)) {
             throw new RuntimeException("Invalid card number!");
@@ -38,19 +37,6 @@ public class CreditCardService implements PaymentService {
 
         System.out.println("\nPayment successfully!");
 
-    }
-
-    private boolean validCvv(int cvv) {
-        return String.valueOf(cvv).length() != 3;
-    }
-
-    private boolean validCardNumber(long cardNumber) {
-        return String.valueOf(cardNumber).length() > 16 || String.valueOf(cardNumber).length() < 14;
-    }
-
-    private boolean validDueDate(String dueDateString) {
-        Date dueDate = new Date(dueDateString);
-        return !dueDate.equals("00/0000") && dueDate.before(Date.from(Instant.now()));
     }
 
 

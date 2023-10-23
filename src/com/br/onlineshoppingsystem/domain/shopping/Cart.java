@@ -4,19 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
-    private List<Purchase> purchases;
-    public Cart(){
-        this.purchases = new ArrayList<>();
+    private List<Purchase> purchases = new ArrayList<>();
+
+    public Cart() {
     }
+
     public List<Purchase> getPurchases() {
         return purchases;
     }
-    public boolean removePurchase (Purchase p){
+
+    public boolean removePurchase(Purchase p) {
         return purchases.remove(p);
     }
-    public boolean addPurchase (Product p, int quantity){
-        return purchases.add(new Purchase(p, quantity));
-    }
 
+    public boolean addPurchase(Purchase purchase) {
+        return purchases.add(purchase);
+    }
 
 }

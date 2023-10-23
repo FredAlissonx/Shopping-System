@@ -1,5 +1,7 @@
 package com.br.onlineshoppingsystem.domain.shopping;
 
+import java.util.Objects;
+
 public class Purchase {
     private Product product;
     private int quantity;
@@ -15,10 +17,26 @@ public class Purchase {
     public int getQuantity() {
         return quantity;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Purchase purchase = (Purchase) o;
+        return Objects.equals(product, purchase.product);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(product);
+    }
+
     public void incrementQuantity(int quantity){
         this.quantity += quantity;
     }
     public void decrementQuantity(int quantity){
         this.quantity -= quantity;
     }
+
+
 }

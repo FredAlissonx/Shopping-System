@@ -4,17 +4,19 @@ package com.br.onlineshoppingsystem.domain.customer;
 import com.br.onlineshoppingsystem.domain.shopping.Cart;
 
 public class Customer {
+
     private String name;
     private String email;
-    private Long shippingAddress;
+    private long adress;
     private Cart cart;
 
-    public Customer(String name, String email, Long shippingAddress, Cart cart) {
+    public Customer(String name, String email, long adress, Cart cart) {
         this.name = name;
         this.email = email;
-        this.shippingAddress = shippingAddress;
+        this.adress = adress;
         this.cart = cart;
     }
+
     public String getName() {
         return name;
     }
@@ -27,9 +29,5 @@ public class Customer {
         return cart;
     }
 
-    public long getShippingAddress() {
-        return shippingAddress;
-    }
-
-    //Add comment with bad practice in Customer: no service class for business rule
+    public long getAdress() {return adress;}
 }

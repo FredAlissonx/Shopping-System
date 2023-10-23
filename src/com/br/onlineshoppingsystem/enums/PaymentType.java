@@ -7,7 +7,7 @@ public enum PaymentType {
 
     CREDIT_CARD, BANK_TRANSFER, PIX, BITCOIN;
 
-    public static List<PaymentType> getOptions() {
+    public static List<PaymentType> getPaymentTypes() {
         return Arrays.asList(com.br.onlineshoppingsystem.enums.PaymentType.values());
     }
 

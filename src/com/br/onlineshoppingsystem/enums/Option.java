@@ -1,8 +1,5 @@
 package com.br.onlineshoppingsystem.enums;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum Option {
     BROWSE_PRODUCTS,
     ADD_TO_CART,
@@ -11,7 +8,4 @@ public enum Option {
     CHECKOUT,
     EXIT;
 
-    public static List<Option> getOptions() {
-        return Arrays.asList(Option.values());
-    }
 }
